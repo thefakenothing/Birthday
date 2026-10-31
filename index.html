@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SHOSHO - Victorian Regal Cinematic Experience</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Cinzel+Decorative:wght@700;900&family=Montserrat:wght@300;600;800&family=Reem+Kufi:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <!-- GSAP Animation Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+
+    <style>
+        :root {
+            --regal-burgundy: #1a0008;
+            --regal-purple: #2a0826;
+            --gold-primary: #f3e5ab;
+            --gold-shine: #d4af37;
+            --gold-glow: #ffd700;
+            --wax-red: #8b0000;
+            --text-gold: #f7e7ce;
+            --glass-card: rgba(26, 0, 8, 0.75);
+            --glass-blur: blur(30px);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+            outline: none;
+            border: none;
+        }
+
+        body, html {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: radial-gradient(circle at 50% 30%, #3a0014 0%, var(--regal-burgundy) 50%, #0d0004 100%);
+            font-family: 'Montserrat', 'Reem Kufi', sans-serif;
+            color: var(--text-gold);
+        }
+
+        #confetti-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .ambient-light {
+            position: fixed;
+            width: 700px;
+            height: 700px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(212, 175, 55, 0.15) 0%, rgba(139, 0, 0, 0.1) 50%, transparent 75%);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1;
+            pointer-events: none;
+            filter: blur(60px);
+        }
+
+        .app-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            z-index: 2;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .scene {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .scene.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* Victorian Gold Button */
+        .royal-btn {
+            background: linear-gradient(135deg, rgba(212, 175, 55, 0.2) 0%, rgba(243, 229, 171, 0.05) 100%);
+            backdrop-filter: var(--glass-blur);
+            -webkit-backdrop-filter: var(--glass-blur);
+            color: var(--gold-shine);
+            padding: 1.2rem 3.8rem;
+            font-size: 1.2rem;
+            font-family: 'Reem Kufi', sans-serif;
+            font-weight: 700;
+            letter-spacing: 2px;
+            cursor: pointer;
+            border-radius: 50px;
+            box-shadow: 
+                0 20px 40px -10px rgba(0, 0, 0, 0.8),
+                0 0 25px rgba(212, 175, 55, 0.2),
+                inset 0 1px 2px rgba(255, 215, 0, 0.4);
+            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+            margin-top: 2rem;
+            z-index: 10;
+        }
+
+        .royal-btn:hover {
+            transform: translateY(-4px) scale(1.03);
+            background: linear-gradient(135deg, rgba(212, 175, 55, 0.4) 0%, rgba(243, 229, 171, 0.15) 100%);
+            box-shadow: 
+                0 25px 50px -10px rgba(0, 0, 0, 0.9),
+                0 0 40px rgba(212, 175, 55, 0.5),
+                inset 0 1px 3px rgba(255, 215, 0, 0.8);
+            color: #ffffff;
+        }
+
+        /* 3D Dynamic Realistic Shadows & Text Styling */
+        .intro-title {
+            font-family: 'Cinzel Decorative', serif;
+            font-size: 2.8rem;
+            color: var(--gold-shine);
+            margin-bottom: 1.2rem;
+            filter: drop-shadow(0 10px 15px rgba(0, 0, 0, 0.8));
+            text-shadow: 
+                0 2px 4px rgba(0, 0, 0, 0.9),
+                0 0 25px rgba(212, 175, 55, 0.5);
+        }
+
+        .intro-subtitle {
+            font-size: 1.15rem;
+            color: var(--text-gold);
+            max-width: 520px;
+            line-height: 1.8;
+            opacity: 0.95;
+            margin-bottom: 2rem;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.85);
+        }
+
+        /* Scene 2 Countdown 3D */
+        .countdown-number {
+            font-family: 'Cinzel Decorative', serif;
+            font-size: 9.5rem;
+            font-weight: 900;
+            color: var(--gold-shine);
+            filter: drop-shadow(0 15px 25px rgba(0, 0, 0, 0.9));
+            text-shadow: 
+                0 4px 8px rgba(0, 0, 0, 0.9),
+                0 0 40px rgba(212, 175, 55, 0.8);
+        }
+
+        /* Scene 3 Journey Frame (Iraq Right -> Egypt Left) */
+        .journey-container {
+            position: relative;
+            width: 90vw;
+            max-width: 850px;
+            height: 350px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 5vw;
+        }
+
+        .city-card {
+            background: var(--glass-card);
+            backdrop-filter: var(--glass-blur);
+            padding: 2rem 2.4rem;
+            border-radius: 32px;
+            box-shadow: 
+                0 30px 60px -12px rgba(0, 0, 0, 0.9),
+                0 0 30px rgba(212, 175, 55, 0.15);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 5;
+        }
+
+        .city-name {
+            font-family: 'Reem Kufi', sans-serif;
+            font-size: 1.5rem;
+            color: var(--gold-shine);
+            font-weight: 700;
+            text-shadow: 0 2px 6px rgba(0, 0, 0, 0.9);
+        }
+
+        .city-dot {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #0288d1;
+            box-shadow: 0 0 20px #0288d1, 0 0 40px rgba(2, 136, 209, 0.8);
+            margin-top: 1rem;
+            animation: pulseBlue 2s infinite ease-in-out;
+        }
+
+        @keyframes pulseBlue {
+            0%, 100% { transform: scale(1); opacity: 0.85; }
+            50% { transform: scale(1.35); opacity: 1; }
+        }
+
+        .cinematic-beam-path {
+            position: absolute;
+            top: 50%;
+            left: 15%;
+            width: 70%;
+            height: 120px;
+            transform: translateY(-50%);
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        .message-orb {
+            position: absolute;
+            top: 50%;
+            left: 85%; /* البداية من جهة اليمين عند العراق */
+            transform: translate(-50%, -50%);
+            width: 58px;
+            height: 58px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, #ffffff 0%, var(--gold-shine) 70%, #8b0000 100%);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.85), 0 0 40px rgba(255, 215, 0, 0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+            opacity: 0;
+            font-size: 1.5rem;
+            color: #ffffff;
+        }
+
+        /* Fullscreen 3D Realistic Text */
+        .fullscreen-text-hb {
+            font-family: 'Cinzel Decorative', cursive;
+            font-size: 4rem;
+            color: var(--gold-shine);
+            filter: drop-shadow(0 15px 20px rgba(0, 0, 0, 0.95));
+            text-shadow: 
+                0 4px 8px rgba(0,0,0,0.9),
+                0 0 35px rgba(212, 175, 55, 0.7);
+        }
+
+        .fullscreen-text-name {
+            font-family: 'Reem Kufi', sans-serif;
+            font-size: 4.5rem;
+            font-weight: 800;
+            color: var(--gold-primary);
+            filter: drop-shadow(0 15px 25px rgba(0, 0, 0, 0.95));
+            text-shadow: 
+                0 4px 10px rgba(0,0,0,0.9),
+                0 0 45px rgba(243, 229, 171, 0.85);
+            letter-spacing: 5px;
+        }
+
+        /* Envelope & Envelope Section */
+        .envelope-container-3d {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            perspective: 1200px;
+        }
+
+        .envelope-instruction {
+            font-family: 'Reem Kufi', sans-serif;
+            font-size: 1.9rem;
+            color: var(--gold-shine);
+            margin-bottom: 2rem;
+            text-shadow: 0 3px 8px rgba(0, 0, 0, 0.9);
+            letter-spacing: 2px;
+            font-weight: 700;
+        }
+
+        .envelope-wrapper {
+            position: relative;
+            width: 340px;
+            height: 230px;
+            background: linear-gradient(145deg, #2d000f 0%, #120006 100%);
+            border-radius: 12px;
+            box-shadow: 0 35px 70px rgba(0,0,0,0.95), 0 0 45px rgba(212, 175, 55, 0.25);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transform-style: preserve-3d;
+        }
+
+        .envelope-flap {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 50%;
+            background: linear-gradient(135deg, #3d0015 0%, #1f000a 100%);
+            clip-path: polygon(0 0, 100% 0, 50% 100%);
+            transform-origin: top;
+            transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+            z-index: 3;
+            box-shadow: inset 0 2px 4px rgba(255,215,0,0.2);
+        }
+
+        .wax-seal {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 75px;
+            height: 75px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, #a80000 0%, var(--wax-red) 70%, #4a0000 100%);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.8), 0 0 20px rgba(139, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 4;
+            cursor: pointer;
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .wax-seal::after {
+            content: '👑';
+            font-size: 1.9rem;
+        }
+
+        .wax-seal:hover {
+            transform: translate(-50%, -50%) scale(1.12);
+        }
+
+        .paper-unfold {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.1);
+            width: 320px;
+            height: 200px;
+            background: linear-gradient(135deg, #fffcf5 0%, #f7ebd2 100%);
+            border-radius: 8px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.8);
+            z-index: 2;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* Celebration Card */
+        .celebration-card {
+            background: var(--glass-card);
+            backdrop-filter: var(--glass-blur);
+            -webkit-backdrop-filter: var(--glass-blur);
+            padding: 3.8rem 2.8rem;
+            border-radius: 44px;
+            max-width: 760px;
+            width: 92%;
+            box-shadow: 0 40px 80px -20px rgba(0, 0, 0, 0.9), 0 0 50px rgba(212, 175, 55, 0.2);
+            position: relative;
+            max-height: 88vh;
+            overflow-y: auto;
+            scrollbar-width: none;
+            display: none;
+        }
+
+        .celebration-card::-webkit-scrollbar { display: none; }
+
+        .title-hb {
+            font-family: 'Cinzel Decorative', cursive;
+            font-size: 2.5rem;
+            color: var(--gold-shine);
+            margin-bottom: 0.4rem;
+            text-shadow: 0 2px 6px rgba(0,0,0,0.9);
+        }
+
+        .name-tag {
+            font-family: 'Reem Kufi', sans-serif;
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--gold-primary);
+            letter-spacing: 3px;
+            margin-bottom: 0.3rem;
+            text-shadow: 0 2px 6px rgba(0,0,0,0.9);
+        }
+
+        .date-tag {
+            font-size: 1rem;
+            color: rgba(247, 231, 206, 0.6);
+            letter-spacing: 2px;
+            margin-bottom: 2rem;
+            font-weight: 600;
+        }
+
+        .message-body {
+            font-family: 'Amiri', serif;
+            font-size: 1.4rem;
+            line-height: 2.2;
+            color: var(--text-gold);
+            margin-bottom: 2.2rem;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.9);
+        }
+
+        .signature {
+            font-family: 'Reem Kufi', sans-serif;
+            font-size: 1.15rem;
+            color: var(--gold-shine);
+            font-weight: 700;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.9);
+        }
+
+        .studio-credit {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.75rem;
+            letter-spacing: 3px;
+            color: rgba(212, 175, 55, 0.45);
+            z-index: 100;
+            pointer-events: none;
+            font-family: 'Montserrat', sans-serif;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        /* iOS 27 Glassmorphic Button */
+        .ios-about-btn {
+            position: fixed;
+            bottom: 24px;
+            left: 24px;
+            z-index: 999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.85rem 1.8rem;
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Montserrat', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            color: rgba(255, 255, 255, 0.95);
+            text-decoration: none;
+            border-radius: 30px;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.18) 0%, rgba(255, 255, 255, 0.05) 100%);
+            backdrop-filter: blur(40px) saturate(200%);
+            -webkit-backdrop-filter: blur(40px) saturate(200%);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            box-shadow: 
+                0 15px 35px rgba(0, 0, 0, 0.4),
+                0 0 20px rgba(255, 255, 255, 0.1),
+                inset 0 1px 1px rgba(255, 255, 255, 0.5);
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .ios-about-btn:hover {
+            transform: translateY(-3px) scale(1.04);
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.28) 0%, rgba(255, 255, 255, 0.1) 100%);
+            border-color: rgba(255, 255, 255, 0.45);
+            box-shadow: 
+                0 20px 45px rgba(0, 0, 0, 0.5),
+                0 0 30px rgba(255, 255, 255, 0.25),
+                inset 0 1px 2px rgba(255, 255, 255, 0.8);
+            color: #ffffff;
+        }
+
+        @media (max-width: 768px) {
+            .intro-title { font-size: 2rem; }
+            .fullscreen-text-hb { font-size: 2.5rem; }
+            .fullscreen-text-name { font-size: 2.8rem; }
+            .countdown-number { font-size: 6.5rem; }
+            .envelope-instruction { font-size: 1.4rem; }
+            .celebration-card { padding: 2.5rem 1.6rem; }
+            .city-card { padding: 1.3rem 1.6rem; }
+            .city-name { font-size: 1.2rem; }
+            .ios-about-btn { bottom: 16px; left: 16px; padding: 0.7rem 1.4rem; font-size: 0.85rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="ambient-light"></div>
+    <canvas id="confetti-canvas"></canvas>
+
+    <div class="app-container">
+
+        <!-- Scene 1: Regal Gift Opening -->
+        <div id="scene1" class="scene active">
+            <h1 class="intro-title">ROYAL CELEBRATION</h1>
+            <p class="intro-subtitle">هدية خاصة لرحلة استثنائية ينبض لها القلب</p>
+            <button class="royal-btn" onclick="startCountdown()">افتح الهدية الملكية</button>
+        </div>
+
+        <!-- Scene 2: Countdown 5 to 0 -->
+        <div id="scene2" class="scene">
+            <div class="countdown-number" id="countdown">5</div>
+        </div>
+
+        <!-- Scene 3: Envelope Curved Flight (Iraq Right -> Egypt Left) -->
+        <div id="scene3" class="scene">
+            <div class="journey-container">
+                <!-- مصر على اليسار -->
+                <div class="city-card" id="cityEgypt">
+                    <div class="city-name">العراق</div>
+                    <div class="city-dot"></div>
+                </div>
+
+                <!-- Curved Arc SVG Path -->
+                <svg class="cinematic-beam-path" viewBox="0 0 500 120" fill="none">
+                    <path id="flightArc" d="M 450 100 Q 250 -30 50 100" stroke="url(#goldGradient)" stroke-width="3" stroke-dasharray="6,6" opacity="0.6"/>
+                    <defs>
+                        <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" stop-color="#ffd700"/>
+                            <stop offset="50%" stop-color="#ffffff"/>
+                            <stop offset="100%" stop-color="#d4af37"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+
+                <div class="message-orb" id="orb">✉</div>
+
+                <!-- العراق على اليمين -->
+                <div class="city-card" id="cityIraq">
+                    <div class="city-name">مصر</div>
+                    <div class="city-dot"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Scene 4: Fullscreen Happy Birthday -->
+        <div id="scene4" class="scene">
+            <h1 class="fullscreen-text-hb">HAPPY BIRTHDAY</h1>
+        </div>
+
+        <!-- Scene 5: Fullscreen Name SHOSHO -->
+        <div id="scene5" class="scene">
+            <h1 class="fullscreen-text-name">شوشو • SHOSHO</h1>
+        </div>
+
+        <!-- Scene 6: Realistic Envelope & Wax Seal -->
+        <div id="scene6" class="scene">
+            <div class="envelope-container-3d" id="envelopeContainer">
+                <div class="envelope-instruction" id="envelopeInstruction">افتح الرسالة</div>
+                <div class="envelope-wrapper" id="envelopeWrapper" onclick="openRoyalEnvelope()">
+                    <div class="envelope-flap" id="envelopeFlap"></div>
+                    <div class="wax-seal" id="waxSeal"></div>
+                </div>
+                <div class="paper-unfold" id="paperUnfold"></div>
+            </div>
+
+            <!-- Folded Letter Reveal -->
+            <div class="celebration-card" id="finalLetter">
+                <h1 class="title-hb">HAPPY BIRTHDAY</h1>
+                <div class="name-tag">شوشو • SHOSHO</div>
+                <div class="date-tag">2026 / 11 / 15</div>
+                
+                <p class="message-body">
+                    هنئتي بالخير يا كل الخير، عيدك نور لاح في الآفاق، وروحك تزهر بالسنا الباقي.. في هذا اليوم تغني لك الدنيا: كل عام وأنتي نور هالدنيا، كل عام وأنت بألف خير يا أطيب قلب وأجمل روح.. وفي ليالي نوفمبر أتمناه لك سنين مليانة حب وسعادة ونجاحات. وجودك بحياة كل إنسان هو أجمل هدية.. الله يحفظك يا أطيب من عرفت شوشو.
+                </p>
+
+                <div class="signature">تحياتي: أحمد أو نوثنق</div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- iOS 27 Glassmorphic Link Button -->
+    <a href="https://thefakenothing.github.io/NOTHING/" target="_blank" rel="noopener noreferrer" class="ios-about-btn" onclick="soundFX.playClick()">
+        About Us
+    </a>
+
+    <div class="studio-credit">Designed by NOTHING Studio</div>
+
+    <script>
+        /* 1. Realistic Sound Effects Synthesizer (Web Audio API) */
+        class SoundFXEngine {
+            constructor() {
+                this.ctx = null;
+            }
+
+            init() {
+                if (!this.ctx) {
+                    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+            }
+
+            playClick() {
+                this.init();
+                if (!this.ctx) return;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(800, this.ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(300, this.ctx.currentTime + 0.08);
+
+                gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.08);
+
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.08);
+            }
+
+            playTick(freq = 600) {
+                this.init();
+                if (!this.ctx) return;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+
+                gain.gain.setValueAtTime(0.3, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.15);
+
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.15);
+            }
+
+            playFlightSound() {
+                this.init();
+                if (!this.ctx) return;
+                const bufferSize = this.ctx.sampleRate * 2.8;
+                const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+                const data = buffer.getChannelData(0);
+                for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+
+                const noise = this.ctx.createBufferSource();
+                noise.buffer = buffer;
+
+                const filter = this.ctx.createBiquadFilter();
+                filter.type = 'bandpass';
+                filter.frequency.setValueAtTime(200, this.ctx.currentTime);
+                filter.frequency.exponentialRampToValueAtTime(1800, this.ctx.currentTime + 1.4);
+                filter.frequency.exponentialRampToValueAtTime(300, this.ctx.currentTime + 2.8);
+
+                const gain = this.ctx.createGain();
+                gain.gain.setValueAtTime(0.01, this.ctx.currentTime);
+                gain.gain.linearRampToValueAtTime(0.2, this.ctx.currentTime + 1.4);
+                gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 2.8);
+
+                noise.connect(filter);
+                filter.connect(gain);
+                gain.connect(this.ctx.destination);
+
+                noise.start();
+            }
+
+            playWhoosh() {
+                this.init();
+                if (!this.ctx) return;
+                const bufferSize = this.ctx.sampleRate * 0.5;
+                const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+                const data = buffer.getChannelData(0);
+                for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+
+                const noise = this.ctx.createBufferSource();
+                noise.buffer = buffer;
+
+                const filter = this.ctx.createBiquadFilter();
+                filter.type = 'lowpass';
+                filter.frequency.setValueAtTime(200, this.ctx.currentTime);
+                filter.frequency.exponentialRampToValueAtTime(1400, this.ctx.currentTime + 0.35);
+
+                const gain = this.ctx.createGain();
+                gain.gain.setValueAtTime(0.25, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.5);
+
+                noise.connect(filter);
+                filter.connect(gain);
+                gain.connect(this.ctx.destination);
+
+                noise.start();
+            }
+
+            playSealBreak() {
+                this.init();
+                if (!this.ctx) return;
+
+                const bufferSize = this.ctx.sampleRate * 0.15;
+                const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+                const data = buffer.getChannelData(0);
+                for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+
+                const noise = this.ctx.createBufferSource();
+                noise.buffer = buffer;
+                const gain1 = this.ctx.createGain();
+                gain1.gain.setValueAtTime(0.4, this.ctx.currentTime);
+                gain1.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.15);
+
+                noise.connect(gain1);
+                gain1.connect(this.ctx.destination);
+                noise.start();
+
+                const osc = this.ctx.createOscillator();
+                const gain2 = this.ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(1200, this.ctx.currentTime + 0.1);
+                gain2.gain.setValueAtTime(0.3, this.ctx.currentTime + 0.1);
+                gain2.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + 1.2);
+
+                osc.connect(gain2);
+                gain2.connect(this.ctx.destination);
+
+                osc.start(this.ctx.currentTime + 0.1);
+                osc.stop(this.ctx.currentTime + 1.2);
+            }
+        }
+
+        const soundFX = new SoundFXEngine();
+
+        /* 2. Confetti Particles */
+        const canvas = document.getElementById('confetti-canvas');
+        const ctx = canvas.getContext('2d');
+        function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        const confetti = [];
+        for (let i = 0; i < 75; i++) {
+            confetti.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height - canvas.height,
+                size: Math.random() * 8 + 4,
+                speedY: Math.random() * 2 + 1,
+                speedX: Math.random() * 1 - 0.5,
+                color: Math.random() > 0.5 ? '#ffd700' : '#e0e0e0',
+                rotation: Math.random() * 360,
+                rotationSpeed: Math.random() * 3 - 1.5
+            });
+        }
+
+        function renderConfetti() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            confetti.forEach((p) => {
+                p.y += p.speedY; p.x += p.speedX; p.rotation += p.rotationSpeed;
+                if (p.y > canvas.height) { p.y = -10; p.x = Math.random() * canvas.width; }
+                ctx.save();
+                ctx.translate(p.x, p.y);
+                ctx.rotate((p.rotation * Math.PI) / 180);
+                ctx.fillStyle = p.color;
+                ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.6);
+                ctx.restore();
+            });
+            requestAnimationFrame(renderConfetti);
+        }
+        renderConfetti();
+
+        /* 3. Sequence Flow */
+        function switchScene(fromId, toId, callback) {
+            gsap.to(`#${fromId}`, {
+                opacity: 0,
+                duration: 0.8,
+                onComplete: () => {
+                    document.getElementById(fromId).classList.remove('active');
+                    document.getElementById(toId).classList.add('active');
+                    gsap.to(`#${toId}`, { opacity: 1, duration: 0.8, onComplete: callback });
+                }
+            });
+        }
+
+        function startCountdown() {
+            soundFX.playClick();
+            
+            switchScene('scene1', 'scene2', () => {
+                let count = 5;
+                const countElem = document.getElementById('countdown');
+                soundFX.playTick(500);
+
+                const interval = setInterval(() => {
+                    count--;
+                    if (count >= 0) {
+                        countElem.innerText = count;
+                        soundFX.playTick(500 + (5 - count) * 80);
+                        gsap.fromTo(countElem, { scale: 1.6, opacity: 0.3 }, { scale: 1, opacity: 1, duration: 0.45, ease: 'back.out(1.7)' });
+                    } else {
+                        clearInterval(interval);
+                        runJourneyScene();
+                    }
+                }, 1000);
+            });
+        }
+
+        function runJourneyScene() {
+            switchScene('scene2', 'scene3', () => {
+                const orb = document.getElementById('orb');
+                soundFX.playFlightSound();
+
+                // انطلاق الرسالة بدقة من العراق (يمين - 85%) إلى مصر (يسار - 15%)
+                gsap.fromTo(orb, 
+                    { opacity: 1 },
+                    { 
+                        duration: 2.8, 
+                        ease: 'power2.inOut',
+                        onUpdate: function() {
+                            const progress = this.progress(); // من 0 إلى 1
+                            const startX = 85; // اليمين (العراق)
+                            const endX = 15;   // اليسار (مصر)
+                            const currentX = startX - (startX - endX) * progress;
+                            const arcY = Math.sin(progress * Math.PI) * -90; // قوس انحناء علوي
+
+                            orb.style.left = `${currentX}%`;
+                            orb.style.transform = `translate(-50%, calc(-50% + ${arcY}px)) scale(${1 + Math.sin(progress * Math.PI) * 0.4})`;
+                        },
+                        onComplete: () => {
+                            setTimeout(runHappyBirthdayScene, 800);
+                        }
+                    }
+                );
+            });
+        }
+
+        function runHappyBirthdayScene() {
+            soundFX.playWhoosh();
+            switchScene('scene3', 'scene4', () => {
+                gsap.fromTo('.fullscreen-text-hb', 
+                    { scale: 0.6, opacity: 0, y: 30 }, 
+                    { scale: 1, opacity: 1, y: 0, duration: 1.2, ease: 'back.out(1.5)' }
+                );
+                setTimeout(runNameScene, 2200);
+            });
+        }
+
+        function runNameScene() {
+            soundFX.playWhoosh();
+            switchScene('scene4', 'scene5', () => {
+                gsap.fromTo('.fullscreen-text-name', 
+                    { scale: 0.6, opacity: 0, y: 30 }, 
+                    { scale: 1, opacity: 1, y: 0, duration: 1.2, ease: 'back.out(1.5)' }
+                );
+                setTimeout(runEnvelopeScene, 2200);
+            });
+        }
+
+        function runEnvelopeScene() {
+            soundFX.playWhoosh();
+            switchScene('scene5', 'scene6', () => {
+                gsap.from('#envelopeContainer', { scale: 0.7, opacity: 0, duration: 1.2, ease: 'power3.out' });
+            });
+        }
+
+        function openRoyalEnvelope() {
+            soundFX.playSealBreak();
+
+            gsap.to('#envelopeInstruction', { opacity: 0, y: -20, duration: 0.4 });
+
+            gsap.to('#waxSeal', { scale: 1.5, opacity: 0, duration: 0.5 });
+            gsap.to('#envelopeFlap', { rotationX: 180, duration: 0.8, delay: 0.2 });
+
+            const paper = document.getElementById('paperUnfold');
+            
+            gsap.to(paper, {
+                opacity: 1,
+                scale: 1,
+                y: -60,
+                duration: 0.8,
+                delay: 0.6,
+                ease: 'power2.out',
+                onComplete: () => {
+                    gsap.to('#envelopeWrapper', { opacity: 0, duration: 0.4 });
+                    
+                    gsap.to(paper, {
+                        width: '100%',
+                        height: '100%',
+                        scale: 1,
+                        opacity: 0,
+                        duration: 0.6,
+                        onComplete: () => {
+                            document.getElementById('envelopeContainer').style.display = 'none';
+                            const letter = document.getElementById('finalLetter');
+                            letter.style.display = 'block';
+
+                            soundFX.playWhoosh();
+                            gsap.fromTo(letter, 
+                                { scale: 0.85, opacity: 0, y: 30 },
+                                { scale: 1, opacity: 1, y: 0, duration: 1, ease: 'power3.out' }
+                            );
+                        }
+                    });
+                }
+            });
+        }
+    </script>
+</body>
+</html>
