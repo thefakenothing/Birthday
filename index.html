@@ -1,896 +1,352 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SHOSHO - Victorian Regal Cinematic Experience</title>
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Cinzel+Decorative:wght@700;900&family=Montserrat:wght@300;600;800&family=Reem+Kufi:wght@400;600;700&display=swap" rel="stylesheet">
-    
-    <!-- GSAP Animation Library -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-
-    <style>
-        :root {
-            --regal-burgundy: #1a0008;
-            --regal-purple: #2a0826;
-            --gold-primary: #f3e5ab;
-            --gold-shine: #d4af37;
-            --gold-glow: #ffd700;
-            --wax-red: #8b0000;
-            --text-gold: #f7e7ce;
-            --glass-card: rgba(26, 0, 8, 0.75);
-            --glass-blur: blur(30px);
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            user-select: none;
-            outline: none;
-            border: none;
-        }
-
-        body, html {
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            background: radial-gradient(circle at 50% 30%, #3a0014 0%, var(--regal-burgundy) 50%, #0d0004 100%);
-            font-family: 'Montserrat', 'Reem Kufi', sans-serif;
-            color: var(--text-gold);
-        }
-
-        #confetti-canvas {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            z-index: 1;
-            pointer-events: none;
-        }
-
-        .ambient-light {
-            position: fixed;
-            width: 700px;
-            height: 700px;
-            border-radius: 50%;
-            background: radial-gradient(circle, rgba(212, 175, 55, 0.15) 0%, rgba(139, 0, 0, 0.1) 50%, transparent 75%);
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 1;
-            pointer-events: none;
-            filter: blur(60px);
-        }
-
-        .app-container {
-            position: relative;
-            width: 100vw;
-            height: 100vh;
-            z-index: 2;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .scene {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            opacity: 0;
-            pointer-events: none;
-            padding: 2rem;
-            text-align: center;
-        }
-
-        .scene.active {
-            opacity: 1;
-            pointer-events: auto;
-        }
-
-        /* Victorian Gold Button */
-        .royal-btn {
-            background: linear-gradient(135deg, rgba(212, 175, 55, 0.2) 0%, rgba(243, 229, 171, 0.05) 100%);
-            backdrop-filter: var(--glass-blur);
-            -webkit-backdrop-filter: var(--glass-blur);
-            color: var(--gold-shine);
-            padding: 1.2rem 3.8rem;
-            font-size: 1.2rem;
-            font-family: 'Reem Kufi', sans-serif;
-            font-weight: 700;
-            letter-spacing: 2px;
-            cursor: pointer;
-            border-radius: 50px;
-            box-shadow: 
-                0 20px 40px -10px rgba(0, 0, 0, 0.8),
-                0 0 25px rgba(212, 175, 55, 0.2),
-                inset 0 1px 2px rgba(255, 215, 0, 0.4);
-            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-            margin-top: 2rem;
-            z-index: 10;
-        }
-
-        .royal-btn:hover {
-            transform: translateY(-4px) scale(1.03);
-            background: linear-gradient(135deg, rgba(212, 175, 55, 0.4) 0%, rgba(243, 229, 171, 0.15) 100%);
-            box-shadow: 
-                0 25px 50px -10px rgba(0, 0, 0, 0.9),
-                0 0 40px rgba(212, 175, 55, 0.5),
-                inset 0 1px 3px rgba(255, 215, 0, 0.8);
-            color: #ffffff;
-        }
-
-        /* 3D Dynamic Realistic Shadows & Text Styling */
-        .intro-title {
-            font-family: 'Cinzel Decorative', serif;
-            font-size: 2.8rem;
-            color: var(--gold-shine);
-            margin-bottom: 1.2rem;
-            filter: drop-shadow(0 10px 15px rgba(0, 0, 0, 0.8));
-            text-shadow: 
-                0 2px 4px rgba(0, 0, 0, 0.9),
-                0 0 25px rgba(212, 175, 55, 0.5);
-        }
-
-        .intro-subtitle {
-            font-size: 1.15rem;
-            color: var(--text-gold);
-            max-width: 520px;
-            line-height: 1.8;
-            opacity: 0.95;
-            margin-bottom: 2rem;
-            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.85);
-        }
-
-        /* Scene 2 Countdown 3D */
-        .countdown-number {
-            font-family: 'Cinzel Decorative', serif;
-            font-size: 9.5rem;
-            font-weight: 900;
-            color: var(--gold-shine);
-            filter: drop-shadow(0 15px 25px rgba(0, 0, 0, 0.9));
-            text-shadow: 
-                0 4px 8px rgba(0, 0, 0, 0.9),
-                0 0 40px rgba(212, 175, 55, 0.8);
-        }
-
-        /* Scene 3 Journey Frame (Iraq Right -> Egypt Left) */
-        .journey-container {
-            position: relative;
-            width: 90vw;
-            max-width: 850px;
-            height: 350px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0 5vw;
-        }
-
-        .city-card {
-            background: var(--glass-card);
-            backdrop-filter: var(--glass-blur);
-            padding: 2rem 2.4rem;
-            border-radius: 32px;
-            box-shadow: 
-                0 30px 60px -12px rgba(0, 0, 0, 0.9),
-                0 0 30px rgba(212, 175, 55, 0.15);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            z-index: 5;
-        }
-
-        .city-name {
-            font-family: 'Reem Kufi', sans-serif;
-            font-size: 1.5rem;
-            color: var(--gold-shine);
-            font-weight: 700;
-            text-shadow: 0 2px 6px rgba(0, 0, 0, 0.9);
-        }
-
-        .city-dot {
-            width: 16px;
-            height: 16px;
-            border-radius: 50%;
-            background: #0288d1;
-            box-shadow: 0 0 20px #0288d1, 0 0 40px rgba(2, 136, 209, 0.8);
-            margin-top: 1rem;
-            animation: pulseBlue 2s infinite ease-in-out;
-        }
-
-        @keyframes pulseBlue {
-            0%, 100% { transform: scale(1); opacity: 0.85; }
-            50% { transform: scale(1.35); opacity: 1; }
-        }
-
-        .cinematic-beam-path {
-            position: absolute;
-            top: 50%;
-            left: 15%;
-            width: 70%;
-            height: 120px;
-            transform: translateY(-50%);
-            z-index: 2;
-            pointer-events: none;
-        }
-
-        .message-orb {
-            position: absolute;
-            top: 50%;
-            left: 85%; /* البداية من جهة اليمين عند العراق */
-            transform: translate(-50%, -50%);
-            width: 58px;
-            height: 58px;
-            border-radius: 50%;
-            background: radial-gradient(circle at 30% 30%, #ffffff 0%, var(--gold-shine) 70%, #8b0000 100%);
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.85), 0 0 40px rgba(255, 215, 0, 0.9);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 10;
-            opacity: 0;
-            font-size: 1.5rem;
-            color: #ffffff;
-        }
-
-        /* Fullscreen 3D Realistic Text */
-        .fullscreen-text-hb {
-            font-family: 'Cinzel Decorative', cursive;
-            font-size: 4rem;
-            color: var(--gold-shine);
-            filter: drop-shadow(0 15px 20px rgba(0, 0, 0, 0.95));
-            text-shadow: 
-                0 4px 8px rgba(0,0,0,0.9),
-                0 0 35px rgba(212, 175, 55, 0.7);
-        }
-
-        .fullscreen-text-name {
-            font-family: 'Reem Kufi', sans-serif;
-            font-size: 4.5rem;
-            font-weight: 800;
-            color: var(--gold-primary);
-            filter: drop-shadow(0 15px 25px rgba(0, 0, 0, 0.95));
-            text-shadow: 
-                0 4px 10px rgba(0,0,0,0.9),
-                0 0 45px rgba(243, 229, 171, 0.85);
-            letter-spacing: 5px;
-        }
-
-        /* Envelope & Envelope Section */
-        .envelope-container-3d {
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            perspective: 1200px;
-        }
-
-        .envelope-instruction {
-            font-family: 'Reem Kufi', sans-serif;
-            font-size: 1.9rem;
-            color: var(--gold-shine);
-            margin-bottom: 2rem;
-            text-shadow: 0 3px 8px rgba(0, 0, 0, 0.9);
-            letter-spacing: 2px;
-            font-weight: 700;
-        }
-
-        .envelope-wrapper {
-            position: relative;
-            width: 340px;
-            height: 230px;
-            background: linear-gradient(145deg, #2d000f 0%, #120006 100%);
-            border-radius: 12px;
-            box-shadow: 0 35px 70px rgba(0,0,0,0.95), 0 0 45px rgba(212, 175, 55, 0.25);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
-            transform-style: preserve-3d;
-        }
-
-        .envelope-flap {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 50%;
-            background: linear-gradient(135deg, #3d0015 0%, #1f000a 100%);
-            clip-path: polygon(0 0, 100% 0, 50% 100%);
-            transform-origin: top;
-            transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-            z-index: 3;
-            box-shadow: inset 0 2px 4px rgba(255,215,0,0.2);
-        }
-
-        .wax-seal {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 75px;
-            height: 75px;
-            border-radius: 50%;
-            background: radial-gradient(circle at 30% 30%, #a80000 0%, var(--wax-red) 70%, #4a0000 100%);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.8), 0 0 20px rgba(139, 0, 0, 0.7);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 4;
-            cursor: pointer;
-            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-
-        .wax-seal::after {
-            content: '👑';
-            font-size: 1.9rem;
-        }
-
-        .wax-seal:hover {
-            transform: translate(-50%, -50%) scale(1.12);
-        }
-
-        .paper-unfold {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%) scale(0.1);
-            width: 320px;
-            height: 200px;
-            background: linear-gradient(135deg, #fffcf5 0%, #f7ebd2 100%);
-            border-radius: 8px;
-            box-shadow: 0 25px 50px rgba(0,0,0,0.8);
-            z-index: 2;
-            opacity: 0;
-            pointer-events: none;
-        }
-
-        /* Celebration Card */
-        .celebration-card {
-            background: var(--glass-card);
-            backdrop-filter: var(--glass-blur);
-            -webkit-backdrop-filter: var(--glass-blur);
-            padding: 3.8rem 2.8rem;
-            border-radius: 44px;
-            max-width: 760px;
-            width: 92%;
-            box-shadow: 0 40px 80px -20px rgba(0, 0, 0, 0.9), 0 0 50px rgba(212, 175, 55, 0.2);
-            position: relative;
-            max-height: 88vh;
-            overflow-y: auto;
-            scrollbar-width: none;
-            display: none;
-        }
-
-        .celebration-card::-webkit-scrollbar { display: none; }
-
-        .title-hb {
-            font-family: 'Cinzel Decorative', cursive;
-            font-size: 2.5rem;
-            color: var(--gold-shine);
-            margin-bottom: 0.4rem;
-            text-shadow: 0 2px 6px rgba(0,0,0,0.9);
-        }
-
-        .name-tag {
-            font-family: 'Reem Kufi', sans-serif;
-            font-size: 2rem;
-            font-weight: 800;
-            color: var(--gold-primary);
-            letter-spacing: 3px;
-            margin-bottom: 0.3rem;
-            text-shadow: 0 2px 6px rgba(0,0,0,0.9);
-        }
-
-        .date-tag {
-            font-size: 1rem;
-            color: rgba(247, 231, 206, 0.6);
-            letter-spacing: 2px;
-            margin-bottom: 2rem;
-            font-weight: 600;
-        }
-
-        .message-body {
-            font-family: 'Amiri', serif;
-            font-size: 1.4rem;
-            line-height: 2.2;
-            color: var(--text-gold);
-            margin-bottom: 2.2rem;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.9);
-        }
-
-        .signature {
-            font-family: 'Reem Kufi', sans-serif;
-            font-size: 1.15rem;
-            color: var(--gold-shine);
-            font-weight: 700;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.9);
-        }
-
-        .studio-credit {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 0.75rem;
-            letter-spacing: 3px;
-            color: rgba(212, 175, 55, 0.45);
-            z-index: 100;
-            pointer-events: none;
-            font-family: 'Montserrat', sans-serif;
-            text-transform: uppercase;
-            font-weight: 600;
-        }
-
-        /* iOS 27 Glassmorphic Button */
-        .ios-about-btn {
-            position: fixed;
-            bottom: 24px;
-            left: 24px;
-            z-index: 999;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 0.85rem 1.8rem;
-            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Montserrat', sans-serif;
-            font-size: 0.95rem;
-            font-weight: 600;
-            letter-spacing: 0.5px;
-            color: rgba(255, 255, 255, 0.95);
-            text-decoration: none;
-            border-radius: 30px;
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.18) 0%, rgba(255, 255, 255, 0.05) 100%);
-            backdrop-filter: blur(40px) saturate(200%);
-            -webkit-backdrop-filter: blur(40px) saturate(200%);
-            border: 1px solid rgba(255, 255, 255, 0.25);
-            box-shadow: 
-                0 15px 35px rgba(0, 0, 0, 0.4),
-                0 0 20px rgba(255, 255, 255, 0.1),
-                inset 0 1px 1px rgba(255, 255, 255, 0.5);
-            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-
-        .ios-about-btn:hover {
-            transform: translateY(-3px) scale(1.04);
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.28) 0%, rgba(255, 255, 255, 0.1) 100%);
-            border-color: rgba(255, 255, 255, 0.45);
-            box-shadow: 
-                0 20px 45px rgba(0, 0, 0, 0.5),
-                0 0 30px rgba(255, 255, 255, 0.25),
-                inset 0 1px 2px rgba(255, 255, 255, 0.8);
-            color: #ffffff;
-        }
-
-        @media (max-width: 768px) {
-            .intro-title { font-size: 2rem; }
-            .fullscreen-text-hb { font-size: 2.5rem; }
-            .fullscreen-text-name { font-size: 2.8rem; }
-            .countdown-number { font-size: 6.5rem; }
-            .envelope-instruction { font-size: 1.4rem; }
-            .celebration-card { padding: 2.5rem 1.6rem; }
-            .city-card { padding: 1.3rem 1.6rem; }
-            .city-name { font-size: 1.2rem; }
-            .ios-about-btn { bottom: 16px; left: 16px; padding: 0.7rem 1.4rem; font-size: 0.85rem; }
-        }
-    </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Happy Birthday SHOSHO</title>
+<link href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@400;700&family=Cinzel:wght@400;700;900&family=Pinyon+Script&display=swap" rel="stylesheet">
+<style>
+:root{--pink:#ffb3d1;--hot:#ff5fa3;--gold:#ffd77a;--red:#ff2d2d;--ink:#3a1030;--glass:rgba(255,255,255,.28);--rx:0;--ry:0;box-sizing:border-box;color-scheme:light}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden;background:radial-gradient(120% 90% at 50% 0%,#ffe3f0,#ffb3d1 55%,#ff8fc0);font-family:Cairo,system-ui,sans-serif;color:var(--ink);-webkit-tap-highlight-color:transparent}
+body::before{content:"";position:fixed;inset:0;background-image:radial-gradient(rgba(255,255,255,.55) 1.2px,transparent 1.6px);background-size:22px 22px;opacity:.5;pointer-events:none}
+canvas#fx{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:50}
+.dot{font-family:Doto,"Courier New",monospace;font-weight:900;letter-spacing:.06em}
+.scene{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:env(safe-area-inset-top,0) 16px env(safe-area-inset-bottom,0);opacity:0;visibility:hidden;transform:scale(1.06);filter:blur(14px);transition:opacity 1.2s ease,transform 1.2s ease,filter 1.2s ease,visibility 0s 1.2s;perspective:1000px}
+.scene.on{opacity:1;visibility:visible;transform:none;filter:none;transition:opacity 1.2s ease,transform 1.2s ease,filter 1.2s ease,visibility 0s}
+.tag{font-size:12px;letter-spacing:.25em;opacity:.7;margin-bottom:26px;direction:ltr}
+.tag i{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--red);margin-inline-end:8px;animation:bl 1.4s infinite}
+@keyframes bl{50%{opacity:.2}}
+.btn{position:relative;border:1px solid rgba(255,255,255,.8);background:linear-gradient(145deg,rgba(255,255,255,.55),rgba(255,255,255,.15));backdrop-filter:blur(18px) saturate(160%);-webkit-backdrop-filter:blur(18px) saturate(160%);color:var(--ink);font:800 22px Cairo,sans-serif;padding:18px 54px;border-radius:999px;cursor:pointer;box-shadow:0 18px 40px rgba(255,80,150,.35),inset 0 1px 0 #fff;transition:transform .25s,box-shadow .25s}
+.btn::before{content:"";position:absolute;top:50%;inset-inline-start:22px;width:9px;height:9px;margin-top:-4.5px;border-radius:50%;background:var(--red);box-shadow:0 0 12px var(--red)}
+.btn:hover{transform:translateY(-3px) scale(1.04)}.btn:active{transform:scale(.96)}
+.btn.big{width:176px;height:176px;border-radius:50%;padding:0;font-size:30px;animation:pulse 2.4s infinite}
+.btn.big::before{top:26px;inset-inline-start:50%;margin-inline-start:-4.5px}
+@keyframes pulse{50%{transform:scale(1.06);box-shadow:0 24px 60px rgba(255,80,150,.55),inset 0 1px 0 #fff}}
+.hint{margin-top:30px;font-size:14px;opacity:.65}
+/* gift */
+#stage{position:relative;width:0;height:0;transform-style:preserve-3d;transform:rotateX(-22deg) rotateY(35deg) scale(1.15);animation:spin 9s linear infinite}
+@keyframes spin{to{transform:rotateX(-22deg) rotateY(395deg) scale(1.15)}}
+.cube,.lidw{position:absolute;left:0;top:0;transform-style:preserve-3d}
+.face{position:absolute;left:0;top:0;backface-visibility:hidden}
+.body .face{background:linear-gradient(90deg,transparent 41%,#ffe29a 41% 59%,transparent 59%),linear-gradient(#ff8fc0,#ff4f9c)}
+.lid .face{background:linear-gradient(90deg,transparent 41%,#ffe29a 41% 59%,transparent 59%),linear-gradient(#ff9fcb,#ff5fa3)}
+.body .t,.lid .t{background:linear-gradient(90deg,transparent 41%,#ffe29a 41% 59%,transparent 59%),linear-gradient(0deg,transparent 41%,#ffe29a 41% 59%,transparent 59%),#ff7ab5}
+.body .t{background:radial-gradient(circle,#fff,#ffd0e6 60%,#ff9fcb)}
+.r{filter:brightness(.86)}.l{filter:brightness(.7)}.b{filter:brightness(.78)}
+.bow{position:absolute;width:64px;height:40px;border:9px solid #ffd77a;border-radius:50%;box-shadow:inset 0 0 8px rgba(0,0,0,.2)}
+.knot{position:absolute;width:26px;height:26px;border-radius:50%;background:radial-gradient(#fff2b8,#f2b53a);margin:-13px}
+.shake{animation:shk .9s ease-in-out}
+@keyframes shk{10%,50%,90%{margin-left:-8px}30%,70%{margin-left:8px}}
+.lidw.go{animation:lid 1.6s cubic-bezier(.3,.7,.2,1) forwards}
+@keyframes lid{to{transform:translateY(-300px) rotateX(-50deg) rotateZ(30deg);opacity:0}}
+#glow{position:absolute;width:420px;height:420px;margin:-210px;border-radius:50%;background:radial-gradient(circle,#fff 0,rgba(255,240,170,.9) 20%,rgba(255,150,200,.4) 50%,transparent 70%);opacity:0;transform:scale(.1)}
+#glow.go{animation:gl 2.6s ease-out forwards}
+@keyframes gl{30%{opacity:1}to{opacity:0;transform:scale(2.6)}}
+#stage.out{animation:none;transition:transform 1.4s cubic-bezier(.6,0,.9,.4),opacity 1.2s;transform:scale(3) rotateX(-22deg);opacity:0}
+#flash{position:fixed;inset:0;background:radial-gradient(circle,#fff,#ffd0e6);opacity:0;pointer-events:none;z-index:40;transition:opacity .8s}
+/* map */
+#mapw{width:min(94vw,640px);transform-style:preserve-3d;transform:rotateX(calc(26deg + var(--rx)*1deg)) rotateY(calc(var(--ry)*1deg));transition:transform .2s;filter:drop-shadow(0 30px 25px rgba(150,40,90,.3))}
+svg text{font-family:Cairo,sans-serif;font-weight:800}
+.rip{transform-box:fill-box;transform-origin:center;animation:rp 2s infinite;fill:none;stroke:#2f6bff;stroke-width:2}
+.rip.d{animation-delay:1s}.rip.rd{stroke:var(--red)}
+@keyframes rp{from{transform:scale(1);opacity:.9}to{transform:scale(5);opacity:0}}
+#cap{margin-top:8px;font-size:18px;font-weight:600;min-height:30px;text-align:center}
+#nextb{margin-top:18px;opacity:0;pointer-events:none;transform:translateY(20px);transition:opacity .9s,transform .9s}
+#nextb.show{opacity:1;pointer-events:auto;transform:none}
+/* cake page */
+#s4{justify-content:flex-start;overflow-y:auto;padding-top:calc(env(safe-area-inset-top,0px) + 20px);padding-bottom:60px}
+#cake{width:min(86vw,330px);flex:none;filter:drop-shadow(0 22px 22px rgba(150,40,90,.3));transform:rotateX(calc(var(--rx)*-.6deg)) rotateY(calc(var(--ry)*.6deg));cursor:pointer}
+.fl{opacity:0;transform-box:fill-box;transform-origin:50% 100%;transition:opacity 1s 2s}
+.on .fl{opacity:1;animation:fk .35s infinite alternate}
+@keyframes fk{to{transform:scale(1.12,.9) rotate(4deg)}}
+h1{font-size:clamp(34px,10vw,58px);line-height:1;text-align:center;margin-top:10px;direction:ltr;background:linear-gradient(180deg,#fff,#ff7ab5 80%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 4px 0 rgba(255,255,255,.6)) drop-shadow(0 10px 14px rgba(180,40,100,.35))}
+.name{font-size:clamp(28px,8vw,44px);font-weight:800;margin-top:12px;display:flex;gap:14px;align-items:center;direction:ltr}
+.name b{font-family:Doto,monospace;color:var(--hot)}
+.date{font-family:Doto,monospace;font-weight:900;margin-top:6px;letter-spacing:.2em;font-size:20px;direction:ltr}
+.date::before{content:"● ";color:var(--red)}
+.card{margin-top:22px;width:min(92vw,520px);padding:26px 22px;border-radius:28px;background:linear-gradient(145deg,rgba(255,255,255,.55),rgba(255,255,255,.18));border:1px solid rgba(255,255,255,.85);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);box-shadow:0 24px 50px rgba(200,60,120,.3),inset 0 1px 0 #fff;text-align:center;line-height:2.05;font-size:17px;font-weight:600}
+.card p{margin:0}
+.w{display:inline-block;opacity:0;transform:translateY(16px) scale(.96);filter:blur(8px);white-space:pre}
+.card::before{content:"";position:absolute;top:0;left:50%;height:2px;width:0;transform:translateX(-50%);background:linear-gradient(90deg,transparent,#ffd77a,transparent)}
+.on .card::before{animation:ln 2.2s 3s cubic-bezier(.22,1,.36,1) forwards}
+@keyframes ln{to{width:84%}}
+.on .card{animation:cardin 1.7s 2s cubic-bezier(.22,1,.36,1) backwards}
+@keyframes cardin{from{opacity:0;transform:translateY(40px) scale(.94);clip-path:inset(0 0 100% 0 round 28px)}to{clip-path:inset(0 0 0 0 round 28px)}}
+@keyframes gw{0%{text-shadow:0 0 0 transparent}30%{text-shadow:0 0 14px #ffd77a,0 0 28px #fff}100%{text-shadow:0 0 0 transparent}}
+@keyframes wr{to{opacity:1;transform:none;filter:none}}
+.on .w{animation:wr 1.1s cubic-bezier(.22,1,.36,1) var(--d) forwards,gw 1.8s ease-out var(--d)}
+.card p:last-child{margin-top:12px;font-weight:800;color:var(--hot)}
+@keyframes rv{to{opacity:1;transform:none;filter:none}}
+#top{position:fixed;top:calc(env(safe-area-inset-top,0px) + 12px);inset-inline-start:12px;z-index:60;display:flex;gap:8px}
+#top button{width:42px;height:42px;border-radius:50%;border:1px solid #fff;background:var(--glass);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);font-size:17px;cursor:pointer;color:var(--ink)}
+body{background:transparent}
+body::after{content:"";position:fixed;inset:-20%;z-index:-1;background:radial-gradient(40% 35% at 20% 25%,rgba(255,215,122,.5),transparent 70%),radial-gradient(35% 35% at 80% 70%,rgba(255,120,190,.55),transparent 70%),radial-gradient(30% 30% at 70% 15%,rgba(210,170,255,.45),transparent 70%);filter:blur(30px);animation:au 14s ease-in-out infinite alternate;pointer-events:none}
+@keyframes au{to{transform:translate(4%,-3%) rotate(8deg) scale(1.1)}}
+#vig{position:fixed;inset:0;pointer-events:none;z-index:44;background:radial-gradient(circle at var(--mx,50%) var(--my,40%),rgba(255,255,255,.25),transparent 40%),radial-gradient(120% 120% at 50% 50%,transparent 55%,rgba(120,20,70,.4))}
+.bars i{position:fixed;left:0;right:0;height:0;background:#1a0614;z-index:45;transition:height 1.6s cubic-bezier(.22,1,.36,1)}
+.bars i:first-child{top:0}.bars i:last-child{bottom:0}.cine .bars i{height:9vh}
+#credit{position:fixed;bottom:calc(env(safe-area-inset-bottom,0px) + 10px);left:50%;transform:translateX(-50%);z-index:46;padding:7px 16px;border-radius:999px;background:rgba(255,255,255,.32);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.85);font:900 10px Doto,monospace;letter-spacing:.22em;white-space:nowrap;direction:ltr;color:var(--ink)}
+#credit i{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--red);margin-inline-end:8px;box-shadow:0 0 8px var(--red)}
+.scene{transition:opacity 1.6s cubic-bezier(.22,1,.36,1),transform 1.6s cubic-bezier(.22,1,.36,1),filter 1.6s ease,visibility 0s 1.6s}
+.scene.on{transition:opacity 1.6s cubic-bezier(.22,1,.36,1) .15s,transform 1.6s cubic-bezier(.22,1,.36,1) .15s,filter 1.6s ease .15s,visibility 0s}
+.ring{position:relative;padding:12px;border-radius:50%}
+.ring::before{content:"";position:absolute;inset:0;border-radius:50%;background:conic-gradient(#ffe9a8,#ff9ccc,#fff,#ffd77a,#ffe9a8);animation:rot 5s linear infinite;-webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 3px),#000 0);mask:radial-gradient(farthest-side,transparent calc(100% - 3px),#000 0)}
+@keyframes rot{to{transform:rotate(360deg)}}
+.btn{border-color:rgba(255,230,160,.95);overflow:hidden}
+.btn::after{content:"";position:absolute;inset:0;background:linear-gradient(105deg,transparent 40%,rgba(255,255,255,.7) 50%,transparent 60%);transform:translateX(-130%);animation:sw 4s 1s infinite}
+.hint{font-family:Doto,monospace;letter-spacing:.3em;font-size:11px;direction:ltr}
+#s1.on .tag{animation:rise2 1.6s .3s backwards}#s1.on .ring{animation:rise2 1.8s .7s backwards}#s1.on .hint{animation:rise2 1.6s 1.2s backwards}
+@keyframes rise2{from{opacity:0;transform:translateY(30px);filter:blur(10px)}}
+#shd{position:absolute;width:260px;height:60px;border-radius:50%;background:radial-gradient(rgba(120,20,70,.45),transparent 70%);top:calc(50% + 120px);filter:blur(6px)}
+#iq{filter:drop-shadow(0 0 14px rgba(255,200,60,.85))}
+h1,.name span{background-image:linear-gradient(110deg,#b8780f 0%,#ffe9a8 25%,#fff 40%,#ffd77a 55%,#b8780f 80%);background-size:250% 100%;-webkit-background-clip:text;background-clip:text;color:transparent}
+h1{animation:foil 5s linear infinite;filter:drop-shadow(0 2px 0 rgba(120,60,0,.4)) drop-shadow(0 12px 20px rgba(180,40,100,.35))}
+.name span{animation:foil 5s linear infinite}
+@keyframes foil{to{background-position:-250% 0}}
+.on h1{animation:foil 5s linear infinite,rise2 1.6s .5s cubic-bezier(.22,1,.36,1) backwards}
+.on #cake{animation:rise 1.8s cubic-bezier(.22,1,.36,1) backwards}
+@keyframes rise{from{opacity:0;transform:translateY(60px) scale(.85) rotateX(30deg)}}
+.on .name{animation:rise2 1.4s 1s backwards}.on .date{animation:rise2 1.4s 1.4s backwards}
+#cake{filter:drop-shadow(0 0 34px rgba(255,215,122,.75)) drop-shadow(0 22px 22px rgba(150,40,90,.3))}
+.card{position:relative;overflow:hidden;border-color:rgba(255,225,150,.95);box-shadow:0 30px 60px rgba(200,60,120,.35),0 0 0 6px rgba(255,255,255,.18),inset 0 1px 0 #fff,inset 0 0 40px rgba(255,255,255,.25)}
+.card::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(105deg,transparent 40%,rgba(255,255,255,.55) 50%,transparent 60%);transform:translateX(-130%);animation:sw 6s 6s infinite}
+@keyframes sw{to{transform:translateX(130%)}}
+.foot{margin-top:28px;text-align:center;font-size:13px;letter-spacing:.3em;opacity:0;direction:ltr}.foot small{font-size:9px;letter-spacing:.25em}
+.on .foot{animation:rise2 1.6s 3.5s forwards}
+.seq{text-align:center;opacity:0;direction:ltr}
+.seq.in{animation:beat 1s cubic-bezier(.22,1,.36,1) forwards}
+@keyframes beat{0%{opacity:0;transform:scale(1.6);filter:blur(16px)}18%{opacity:1;transform:scale(1);filter:none}82%{opacity:1;transform:scale(1);filter:none}100%{opacity:0;transform:scale(.88);filter:blur(12px)}}
+.gold{background-image:linear-gradient(110deg,#b8780f 0%,#ffe9a8 25%,#fff 40%,#ffd77a 55%,#b8780f 80%);background-size:250% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:foil 3s linear infinite;filter:drop-shadow(0 4px 0 rgba(120,60,0,.35)) drop-shadow(0 14px 24px rgba(180,40,100,.4))}
+.cdw{position:relative;width:min(72vw,320px);aspect-ratio:1;display:grid;place-items:center;border-radius:50%;border:2px solid rgba(255,230,160,.95);background:radial-gradient(circle,rgba(255,255,255,.4),rgba(255,255,255,.08));backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);box-shadow:0 20px 50px rgba(255,80,150,.35),inset 0 0 40px rgba(255,255,255,.4)}
+.cdw::after{content:"";position:absolute;inset:-2px;border-radius:50%;border:2px solid #ffd77a;animation:rp2 1s ease-out infinite}
+@keyframes rp2{to{transform:scale(1.35);opacity:0}}
+.num{font:900 clamp(120px,40vw,220px)/1 Doto,"Courier New",monospace}
+.gr .ar{font:800 clamp(40px,13vw,84px)/1.35 Cairo,sans-serif}
+.gr .en{font:900 clamp(30px,10vw,70px)/1.2 Doto,"Courier New",monospace;letter-spacing:.06em;margin-top:6px}
+html,body{font-family:'Aref Ruqaa',serif;color:#f6e7c1;background:radial-gradient(90% 70% at 50% 112%,#6b0f2a 0%,transparent 65%),radial-gradient(120% 90% at 50% -10%,#2f2f8f,#14124a 50%,#08072a)}
+body{background:transparent}
+body::before{background-image:radial-gradient(rgba(255,215,122,.4) 1px,transparent 1.5px);background-size:26px 26px;opacity:.45}
+body::after{background:radial-gradient(40% 35% at 20% 25%,rgba(255,200,90,.22),transparent 70%),radial-gradient(40% 40% at 80% 75%,rgba(160,20,60,.55),transparent 70%),radial-gradient(40% 40% at 70% 15%,rgba(70,70,220,.45),transparent 70%)}
+#vig{background:radial-gradient(circle at var(--mx,50%) var(--my,40%),rgba(255,215,122,.14),transparent 40%),radial-gradient(120% 120% at 50% 50%,transparent 50%,rgba(3,2,20,.65))}
+#vig::before{content:"";position:absolute;inset:14px;border:1px solid rgba(255,215,122,.6);border-radius:6px;box-shadow:inset 0 0 0 5px transparent,inset 0 0 0 6px rgba(255,215,122,.25),0 0 24px rgba(255,200,90,.15)}
+.bars i{background:#05041a}
+.tag,.date,#credit,.foot,.foot small{font-family:Cinzel,serif!important;font-weight:700}
+.tag{color:#ffd77a;letter-spacing:.32em}
+.hint{font-family:'Aref Ruqaa',serif;font-size:21px;letter-spacing:0;color:#ffe9a8;direction:rtl}
+.crown{width:92px;margin-bottom:14px;filter:drop-shadow(0 0 16px rgba(255,200,90,.65))}
+.btn{font-family:'Aref Ruqaa',serif;font-weight:700;color:#ffe9a8;border:1px solid #ffd77a;background:linear-gradient(145deg,rgba(255,215,122,.22),rgba(107,15,42,.6));box-shadow:0 18px 40px rgba(0,0,0,.5),0 0 30px rgba(255,200,90,.25),inset 0 1px 0 rgba(255,235,170,.6)}
+.btn.big{font-size:38px}
+.btn::before{background:#ffd77a;box-shadow:0 0 12px #ffd77a}
+.ring::before{background:conic-gradient(#8a5a10,#ffe9a8,#c28a1e,#fff4cf,#8a5a10)}
+@keyframes pulse{50%{transform:scale(1.06);box-shadow:0 24px 60px rgba(255,190,70,.5),inset 0 1px 0 rgba(255,235,170,.7)}}
+#top button{background:rgba(20,12,60,.55);border-color:#ffd77a;color:#ffd77a}
+#credit{background:rgba(10,8,40,.6);border-color:rgba(255,215,122,.7);color:#ffd77a}
+#flash{background:radial-gradient(circle,#fff6d6,#ffd77a)}
+#glow{background:radial-gradient(circle,#fff 0,rgba(255,225,140,.9) 20%,rgba(190,40,80,.45) 50%,transparent 70%)}
+#shd{background:radial-gradient(rgba(0,0,0,.55),transparent 70%)}
+.body .face{background:linear-gradient(90deg,transparent 41%,#ffd77a 41% 59%,transparent 59%),linear-gradient(#8a1636,#4a0a1e)}
+.lid .face{background:linear-gradient(90deg,transparent 41%,#ffd77a 41% 59%,transparent 59%),linear-gradient(#a81f45,#5e0d26)}
+.lid .t{background:linear-gradient(90deg,transparent 41%,#ffd77a 41% 59%,transparent 59%),linear-gradient(0deg,transparent 41%,#ffd77a 41% 59%,transparent 59%),#7a1230}
+.body .t{background:radial-gradient(circle,#fff6d0,#ffd77a 60%,#8a5a10)}
+#mapw{filter:drop-shadow(0 30px 25px rgba(0,0,0,.55))}
+svg text{font-family:'Aref Ruqaa',serif;font-weight:700}
+#arc{stroke:#ffd77a}
+#env rect{fill:#ffe9a8;stroke:#8a1636}#env path{stroke:#8a1636}
+#eg path{fill:#14124a}#eg path[stroke]{fill:rgba(96,96,220,.5);stroke:#ffd77a}
+#eg text{fill:#ffe9a8}#bg text{fill:#9fc0ff}#ca text{fill:#ff9aa8}
+#map g[stroke-dasharray]{stroke:#ffd77a;stroke-opacity:.3}
+#cap{color:#ffe9a8;font-size:24px;font-weight:700}
+.cdw{background:radial-gradient(circle,rgba(255,215,122,.18),rgba(107,15,42,.5));box-shadow:0 20px 60px rgba(0,0,0,.5),0 0 50px rgba(255,200,90,.3),inset 0 0 40px rgba(255,215,122,.2)}
+.num{font-family:Cinzel,serif;font-weight:900}
+.gr .ar,.name span{font-family:'Aref Ruqaa',serif;font-weight:700}
+.gr .en,h1.dot,.name b{font-family:Daisy,'Pinyon Script',cursive;font-weight:400;letter-spacing:0}
+.gr .en{font-size:clamp(48px,15vw,100px)}
+h1.dot{font-size:clamp(56px,17vw,100px);line-height:1.05;filter:drop-shadow(0 2px 0 rgba(60,20,0,.6)) drop-shadow(0 10px 24px rgba(255,190,70,.35))}
+.name span{font-size:clamp(44px,13vw,70px)}
+.name b{font-size:clamp(40px,12vw,66px);color:#ffe9a8;text-shadow:0 0 18px rgba(255,200,90,.55)}
+.date{color:#ffd77a;font-size:18px;letter-spacing:.3em}.date::before{color:#ffd77a}
+#cake{filter:drop-shadow(0 0 30px rgba(255,200,90,.55)) drop-shadow(0 24px 24px rgba(0,0,0,.5))}
+#t1 stop:nth-child(1){stop-color:#9a2146}#t1 stop:nth-child(2){stop-color:#4a0a1e}
+#t2 stop:nth-child(1){stop-color:#4a4ac8}#t2 stop:nth-child(2){stop-color:#14124a}
+#t3 stop:nth-child(1){stop-color:#b8294f}#t3 stop:nth-child(2){stop-color:#6b0f2a}
+#cake path[fill="#fff"]{fill:#f5d58a}#cake circle[fill="#fff"]{fill:#ffe9a8}
+#cake path[fill="#ff4f9c"]{fill:#ffd77a;stroke:#8a1636}
+#cake ellipse[fill="rgba(255,255,255,.7)"]{fill:rgba(255,215,122,.35)}
+#cake text{fill:#ffd77a;font-family:Cinzel,serif!important;font-weight:700}
+.foot{color:#ffd77a}
+</style>
 </head>
 <body>
-
-    <div class="ambient-light"></div>
-    <canvas id="confetti-canvas"></canvas>
-
-    <div class="app-container">
-
-        <!-- Scene 1: Regal Gift Opening -->
-        <div id="scene1" class="scene active">
-            <h1 class="intro-title">ROYAL CELEBRATION</h1>
-            <p class="intro-subtitle">هدية خاصة لرحلة استثنائية ينبض لها القلب</p>
-            <button class="royal-btn" onclick="startCountdown()">افتح الهدية الملكية</button>
-        </div>
-
-        <!-- Scene 2: Countdown 5 to 0 -->
-        <div id="scene2" class="scene">
-            <div class="countdown-number" id="countdown">5</div>
-        </div>
-
-        <!-- Scene 3: Envelope Curved Flight (Iraq Right -> Egypt Left) -->
-        <div id="scene3" class="scene">
-            <div class="journey-container">
-                <!-- مصر على اليسار -->
-                <div class="city-card" id="cityEgypt">
-                    <div class="city-name">العراق</div>
-                    <div class="city-dot"></div>
-                </div>
-
-                <!-- Curved Arc SVG Path -->
-                <svg class="cinematic-beam-path" viewBox="0 0 500 120" fill="none">
-                    <path id="flightArc" d="M 450 100 Q 250 -30 50 100" stroke="url(#goldGradient)" stroke-width="3" stroke-dasharray="6,6" opacity="0.6"/>
-                    <defs>
-                        <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                            <stop offset="0%" stop-color="#ffd700"/>
-                            <stop offset="50%" stop-color="#ffffff"/>
-                            <stop offset="100%" stop-color="#d4af37"/>
-                        </linearGradient>
-                    </defs>
-                </svg>
-
-                <div class="message-orb" id="orb">✉</div>
-
-                <!-- العراق على اليمين -->
-                <div class="city-card" id="cityIraq">
-                    <div class="city-name">مصر</div>
-                    <div class="city-dot"></div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Scene 4: Fullscreen Happy Birthday -->
-        <div id="scene4" class="scene">
-            <h1 class="fullscreen-text-hb">HAPPY BIRTHDAY</h1>
-        </div>
-
-        <!-- Scene 5: Fullscreen Name SHOSHO -->
-        <div id="scene5" class="scene">
-            <h1 class="fullscreen-text-name">شوشو • SHOSHO</h1>
-        </div>
-
-        <!-- Scene 6: Realistic Envelope & Wax Seal -->
-        <div id="scene6" class="scene">
-            <div class="envelope-container-3d" id="envelopeContainer">
-                <div class="envelope-instruction" id="envelopeInstruction">افتح الرسالة</div>
-                <div class="envelope-wrapper" id="envelopeWrapper" onclick="openRoyalEnvelope()">
-                    <div class="envelope-flap" id="envelopeFlap"></div>
-                    <div class="wax-seal" id="waxSeal"></div>
-                </div>
-                <div class="paper-unfold" id="paperUnfold"></div>
-            </div>
-
-            <!-- Folded Letter Reveal -->
-            <div class="celebration-card" id="finalLetter">
-                <h1 class="title-hb">HAPPY BIRTHDAY</h1>
-                <div class="name-tag">شوشو • SHOSHO</div>
-                <div class="date-tag">2026 / 11 / 15</div>
-                
-                <p class="message-body">
-                    هنئتي بالخير يا كل الخير، عيدك نور لاح في الآفاق، وروحك تزهر بالسنا الباقي.. في هذا اليوم تغني لك الدنيا: كل عام وأنتي نور هالدنيا، كل عام وأنت بألف خير يا أطيب قلب وأجمل روح.. وفي ليالي نوفمبر أتمناه لك سنين مليانة حب وسعادة ونجاحات. وجودك بحياة كل إنسان هو أجمل هدية.. الله يحفظك يا أطيب من عرفت شوشو.
-                </p>
-
-                <div class="signature">تحياتي: أحمد أو نوثنق</div>
-            </div>
-        </div>
-
-    </div>
-
-    <!-- iOS 27 Glassmorphic Link Button -->
-    <a href="https://thefakenothing.github.io/NOTHING/" target="_blank" rel="noopener noreferrer" class="ios-about-btn" onclick="soundFX.playClick()">
-        About Us
-    </a>
-
-    <div class="studio-credit">Designed by NOTHING Studio</div>
-
-    <script>
-        /* 1. Realistic Sound Effects Synthesizer (Web Audio API) */
-        class SoundFXEngine {
-            constructor() {
-                this.ctx = null;
-            }
-
-            init() {
-                if (!this.ctx) {
-                    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
-                }
-            }
-
-            playClick() {
-                this.init();
-                if (!this.ctx) return;
-                const osc = this.ctx.createOscillator();
-                const gain = this.ctx.createGain();
-                
-                osc.type = 'triangle';
-                osc.frequency.setValueAtTime(800, this.ctx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(300, this.ctx.currentTime + 0.08);
-
-                gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.08);
-
-                osc.connect(gain);
-                gain.connect(this.ctx.destination);
-
-                osc.start();
-                osc.stop(this.ctx.currentTime + 0.08);
-            }
-
-            playTick(freq = 600) {
-                this.init();
-                if (!this.ctx) return;
-                const osc = this.ctx.createOscillator();
-                const gain = this.ctx.createGain();
-
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
-
-                gain.gain.setValueAtTime(0.3, this.ctx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.15);
-
-                osc.connect(gain);
-                gain.connect(this.ctx.destination);
-
-                osc.start();
-                osc.stop(this.ctx.currentTime + 0.15);
-            }
-
-            playFlightSound() {
-                this.init();
-                if (!this.ctx) return;
-                const bufferSize = this.ctx.sampleRate * 2.8;
-                const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
-                const data = buffer.getChannelData(0);
-                for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
-
-                const noise = this.ctx.createBufferSource();
-                noise.buffer = buffer;
-
-                const filter = this.ctx.createBiquadFilter();
-                filter.type = 'bandpass';
-                filter.frequency.setValueAtTime(200, this.ctx.currentTime);
-                filter.frequency.exponentialRampToValueAtTime(1800, this.ctx.currentTime + 1.4);
-                filter.frequency.exponentialRampToValueAtTime(300, this.ctx.currentTime + 2.8);
-
-                const gain = this.ctx.createGain();
-                gain.gain.setValueAtTime(0.01, this.ctx.currentTime);
-                gain.gain.linearRampToValueAtTime(0.2, this.ctx.currentTime + 1.4);
-                gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 2.8);
-
-                noise.connect(filter);
-                filter.connect(gain);
-                gain.connect(this.ctx.destination);
-
-                noise.start();
-            }
-
-            playWhoosh() {
-                this.init();
-                if (!this.ctx) return;
-                const bufferSize = this.ctx.sampleRate * 0.5;
-                const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
-                const data = buffer.getChannelData(0);
-                for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
-
-                const noise = this.ctx.createBufferSource();
-                noise.buffer = buffer;
-
-                const filter = this.ctx.createBiquadFilter();
-                filter.type = 'lowpass';
-                filter.frequency.setValueAtTime(200, this.ctx.currentTime);
-                filter.frequency.exponentialRampToValueAtTime(1400, this.ctx.currentTime + 0.35);
-
-                const gain = this.ctx.createGain();
-                gain.gain.setValueAtTime(0.25, this.ctx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.5);
-
-                noise.connect(filter);
-                filter.connect(gain);
-                gain.connect(this.ctx.destination);
-
-                noise.start();
-            }
-
-            playSealBreak() {
-                this.init();
-                if (!this.ctx) return;
-
-                const bufferSize = this.ctx.sampleRate * 0.15;
-                const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
-                const data = buffer.getChannelData(0);
-                for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
-
-                const noise = this.ctx.createBufferSource();
-                noise.buffer = buffer;
-                const gain1 = this.ctx.createGain();
-                gain1.gain.setValueAtTime(0.4, this.ctx.currentTime);
-                gain1.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.15);
-
-                noise.connect(gain1);
-                gain1.connect(this.ctx.destination);
-                noise.start();
-
-                const osc = this.ctx.createOscillator();
-                const gain2 = this.ctx.createGain();
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(1200, this.ctx.currentTime + 0.1);
-                gain2.gain.setValueAtTime(0.3, this.ctx.currentTime + 0.1);
-                gain2.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + 1.2);
-
-                osc.connect(gain2);
-                gain2.connect(this.ctx.destination);
-
-                osc.start(this.ctx.currentTime + 0.1);
-                osc.stop(this.ctx.currentTime + 1.2);
-            }
-        }
-
-        const soundFX = new SoundFXEngine();
-
-        /* 2. Confetti Particles */
-        const canvas = document.getElementById('confetti-canvas');
-        const ctx = canvas.getContext('2d');
-        function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
-        resizeCanvas();
-        window.addEventListener('resize', resizeCanvas);
-
-        const confetti = [];
-        for (let i = 0; i < 75; i++) {
-            confetti.push({
-                x: Math.random() * canvas.width,
-                y: Math.random() * canvas.height - canvas.height,
-                size: Math.random() * 8 + 4,
-                speedY: Math.random() * 2 + 1,
-                speedX: Math.random() * 1 - 0.5,
-                color: Math.random() > 0.5 ? '#ffd700' : '#e0e0e0',
-                rotation: Math.random() * 360,
-                rotationSpeed: Math.random() * 3 - 1.5
-            });
-        }
-
-        function renderConfetti() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            confetti.forEach((p) => {
-                p.y += p.speedY; p.x += p.speedX; p.rotation += p.rotationSpeed;
-                if (p.y > canvas.height) { p.y = -10; p.x = Math.random() * canvas.width; }
-                ctx.save();
-                ctx.translate(p.x, p.y);
-                ctx.rotate((p.rotation * Math.PI) / 180);
-                ctx.fillStyle = p.color;
-                ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.6);
-                ctx.restore();
-            });
-            requestAnimationFrame(renderConfetti);
-        }
-        renderConfetti();
-
-        /* 3. Sequence Flow */
-        function switchScene(fromId, toId, callback) {
-            gsap.to(`#${fromId}`, {
-                opacity: 0,
-                duration: 0.8,
-                onComplete: () => {
-                    document.getElementById(fromId).classList.remove('active');
-                    document.getElementById(toId).classList.add('active');
-                    gsap.to(`#${toId}`, { opacity: 1, duration: 0.8, onComplete: callback });
-                }
-            });
-        }
-
-        function startCountdown() {
-            soundFX.playClick();
-            
-            switchScene('scene1', 'scene2', () => {
-                let count = 5;
-                const countElem = document.getElementById('countdown');
-                soundFX.playTick(500);
-
-                const interval = setInterval(() => {
-                    count--;
-                    if (count >= 0) {
-                        countElem.innerText = count;
-                        soundFX.playTick(500 + (5 - count) * 80);
-                        gsap.fromTo(countElem, { scale: 1.6, opacity: 0.3 }, { scale: 1, opacity: 1, duration: 0.45, ease: 'back.out(1.7)' });
-                    } else {
-                        clearInterval(interval);
-                        runJourneyScene();
-                    }
-                }, 1000);
-            });
-        }
-
-        function runJourneyScene() {
-            switchScene('scene2', 'scene3', () => {
-                const orb = document.getElementById('orb');
-                soundFX.playFlightSound();
-
-                // انطلاق الرسالة بدقة من العراق (يمين - 85%) إلى مصر (يسار - 15%)
-                gsap.fromTo(orb, 
-                    { opacity: 1 },
-                    { 
-                        duration: 2.8, 
-                        ease: 'power2.inOut',
-                        onUpdate: function() {
-                            const progress = this.progress(); // من 0 إلى 1
-                            const startX = 85; // اليمين (العراق)
-                            const endX = 15;   // اليسار (مصر)
-                            const currentX = startX - (startX - endX) * progress;
-                            const arcY = Math.sin(progress * Math.PI) * -90; // قوس انحناء علوي
-
-                            orb.style.left = `${currentX}%`;
-                            orb.style.transform = `translate(-50%, calc(-50% + ${arcY}px)) scale(${1 + Math.sin(progress * Math.PI) * 0.4})`;
-                        },
-                        onComplete: () => {
-                            setTimeout(runHappyBirthdayScene, 800);
-                        }
-                    }
-                );
-            });
-        }
-
-        function runHappyBirthdayScene() {
-            soundFX.playWhoosh();
-            switchScene('scene3', 'scene4', () => {
-                gsap.fromTo('.fullscreen-text-hb', 
-                    { scale: 0.6, opacity: 0, y: 30 }, 
-                    { scale: 1, opacity: 1, y: 0, duration: 1.2, ease: 'back.out(1.5)' }
-                );
-                setTimeout(runNameScene, 2200);
-            });
-        }
-
-        function runNameScene() {
-            soundFX.playWhoosh();
-            switchScene('scene4', 'scene5', () => {
-                gsap.fromTo('.fullscreen-text-name', 
-                    { scale: 0.6, opacity: 0, y: 30 }, 
-                    { scale: 1, opacity: 1, y: 0, duration: 1.2, ease: 'back.out(1.5)' }
-                );
-                setTimeout(runEnvelopeScene, 2200);
-            });
-        }
-
-        function runEnvelopeScene() {
-            soundFX.playWhoosh();
-            switchScene('scene5', 'scene6', () => {
-                gsap.from('#envelopeContainer', { scale: 0.7, opacity: 0, duration: 1.2, ease: 'power3.out' });
-            });
-        }
-
-        function openRoyalEnvelope() {
-            soundFX.playSealBreak();
-
-            gsap.to('#envelopeInstruction', { opacity: 0, y: -20, duration: 0.4 });
-
-            gsap.to('#waxSeal', { scale: 1.5, opacity: 0, duration: 0.5 });
-            gsap.to('#envelopeFlap', { rotationX: 180, duration: 0.8, delay: 0.2 });
-
-            const paper = document.getElementById('paperUnfold');
-            
-            gsap.to(paper, {
-                opacity: 1,
-                scale: 1,
-                y: -60,
-                duration: 0.8,
-                delay: 0.6,
-                ease: 'power2.out',
-                onComplete: () => {
-                    gsap.to('#envelopeWrapper', { opacity: 0, duration: 0.4 });
-                    
-                    gsap.to(paper, {
-                        width: '100%',
-                        height: '100%',
-                        scale: 1,
-                        opacity: 0,
-                        duration: 0.6,
-                        onComplete: () => {
-                            document.getElementById('envelopeContainer').style.display = 'none';
-                            const letter = document.getElementById('finalLetter');
-                            letter.style.display = 'block';
-
-                            soundFX.playWhoosh();
-                            gsap.fromTo(letter, 
-                                { scale: 0.85, opacity: 0, y: 30 },
-                                { scale: 1, opacity: 1, y: 0, duration: 1, ease: 'power3.out' }
-                            );
-                        }
-                    });
-                }
-            });
-        }
-    </script>
+<canvas id="fx"></canvas><div id="flash"></div><div id="vig"></div><div class="bars"><i></i><i></i></div><div id="credit"><i></i>DESIGNED BY NOTHING STUDIO © 2026</div>
+<div id="top"><button id="mute" aria-label="sound">♪</button></div>
+
+<section class="scene on" id="s1">
+ <svg class="crown" viewBox="0 0 120 80"><path d="M10 70L5 20L35 45L60 8L85 45L115 20L110 70Z" fill="#ffd77a" stroke="#fff1b8" stroke-width="2"/><rect x="10" y="62" width="100" height="10" rx="3" fill="#c28a1e"/><circle cx="5" cy="18" r="5" fill="#ff2d55"/><circle cx="60" cy="7" r="6" fill="#3b6bff"/><circle cx="115" cy="18" r="5" fill="#ff2d55"/></svg>
+ <div class="tag dot"><i></i>( I ) A ROYAL GIFT FOR SHOSHO</div>
+ <div class="ring"><button class="btn big" id="go">اضغط</button></div>
+ <div class="hint">شيءٌ جميل بانتظارك ✦</div>
+</section>
+
+<section class="scene" id="s2"><div id="shd"></div><div id="stage"></div></section>
+
+<section class="scene" id="s3">
+ <div class="tag dot"><i></i>( 02 ) BAGHDAD → CAIRO</div>
+ <div id="mapw"><svg id="map" viewBox="0 0 700 540"></svg></div>
+ <div id="cap"></div>
+ <button class="btn" id="nextb">التالي</button>
+</section>
+
+<section class="scene" id="s5"><div id="seq" class="seq"></div></section>
+
+<section class="scene" id="s4">
+ <svg id="cake" viewBox="0 0 400 420"></svg>
+ <h1 class="dot">Happy<br>Birthday</h1>
+ <div class="name"><span>شوشو</span><b>SHOSHO</b></div>
+ <div class="date">2026/11/15</div>
+ <div id="msg" hidden></div>
+ <div class="foot dot">NOTHING STUDIO<br><small>© 2026 · ALL RIGHTS RESERVED</small></div>
+</section>
+
+<script>
+const $=s=>document.querySelector(s),NS='http://www.w3.org/2000/svg';
+/* ---------- audio ---------- */
+let ac,master,muted=false;
+function A(){if(!ac){ac=new(window.AudioContext||window.webkitAudioContext)();master=ac.createGain();master.gain.value=muted?0:.9;const dl=ac.createDelay();dl.delayTime.value=.27;const fb=ac.createGain();fb.gain.value=.38;const wt=ac.createGain();wt.gain.value=.28;master.connect(dl);dl.connect(fb);fb.connect(dl);dl.connect(wt);wt.connect(ac.destination);master.connect(ac.destination)}if(ac.state==='suspended')ac.resume();return ac}
+function env(f,t,d,type,v){const o=ac.createOscillator(),g=ac.createGain();o.type=type;o.frequency.value=f;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(v,t+.012);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g);g.connect(master);o.start(t);o.stop(t+d+.05)}
+function noise(t,d,f0,f1,v){const b=ac.createBuffer(1,ac.sampleRate*d,ac.sampleRate),a=b.getChannelData(0);for(let i=0;i<a.length;i++)a[i]=Math.random()*2-1;const s=ac.createBufferSource();s.buffer=b;const fl=ac.createBiquadFilter();fl.type='bandpass';fl.Q.value=1.5;fl.frequency.setValueAtTime(f0,t);fl.frequency.exponentialRampToValueAtTime(f1,t+d);const g=ac.createGain();g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(v,t+d*.4);g.gain.linearRampToValueAtTime(0,t+d);s.connect(fl);fl.connect(g);g.connect(master);s.start(t)}
+const sfx={
+ click(){A();const t=ac.currentTime;env(880,t,.12,'sine',.2);env(1320,t+.05,.18,'sine',.12)},
+ whoosh(){A();noise(ac.currentTime,1.4,300,3500,.35)},
+ chime(){A();const t=ac.currentTime;[784,988,1175,1568,1976,2349].forEach((f,i)=>env(f,t+i*.07,1.1,'sine',.1))},
+ thud(){A();const t=ac.currentTime;env(90,t,.3,'sine',.5)},
+ land(){A();const t=ac.currentTime;[523,659,784,1047].forEach((f,i)=>env(f,t+i*.09,1,'triangle',.14))}
+};
+const N={g2:98,c3:130.8,e3:164.8,f3:174.6,g4:392,a4:440,b4:493.9,c5:523.3,d5:587.3,e5:659.3,f5:698.5,g5:784};
+function piano(f,t,d){env(f,t,d,'triangle',.3);env(f*2,t,d*.6,'sine',.08);env(f*3,t,d*.3,'sine',.03)}
+function melody(){A();const b=.55,t0=ac.currentTime+.4;
+ const m=[['g4',.75],['g4',.25],['a4',1],['g4',1],['c5',1],['b4',2],['g4',.75],['g4',.25],['a4',1],['g4',1],['d5',1],['c5',2],['g4',.75],['g4',.25],['g5',1],['e5',1],['c5',1],['b4',1],['a4',1],['f5',.75],['f5',.25],['e5',1],['c5',1],['d5',1],['c5',2]];
+ let t=t0;m.forEach(([n,d])=>{piano(N[n],t,d*b*2.2);t+=d*b});
+ ['c3','c3','g2','c3','c3','c3','f3','c3'].forEach((n,i)=>{const tt=t0+i*3*b;piano(N[n],tt,1.6);piano(N[n]*1.5,tt+b,1.2);piano(N[n]*2,tt+2*b,1.2)});
+ setTimeout(()=>burst(innerWidth/2,innerHeight*.3,80),t0*0+500);}
+$('#mute').onclick=()=>{A();muted=!muted;master.gain.value=muted?0:.9;$('#mute').textContent=muted?'✕':'♪'};
+
+/* ---------- confetti / glitter canvas ---------- */
+const cv=$('#fx'),cx=cv.getContext('2d');let W,H,D=Math.min(devicePixelRatio||1,2);
+function rs(){W=innerWidth;H=innerHeight;cv.width=W*D;cv.height=H*D;cx.setTransform(D,0,0,D,0,0)}rs();addEventListener('resize',rs);
+const COL=['#ffd77a','#fff1b8','#f5c04a','#ffffff','#e8b4c0','#9a2146','#6a6af0','#ffe9a8'];
+const P=[];
+function mk(x,y,burstMode){const a=Math.random()*6.283,s=burstMode?3+Math.random()*9:0;return{x,y,vx:Math.cos(a)*s,vy:burstMode?Math.sin(a)*s-5:.6+Math.random()*1.4,sz:3+Math.random()*6,c:COL[Math.random()*COL.length|0],k:Math.random()*3|0,r:Math.random()*6.28,vr:(Math.random()-.5)*.1,ph:Math.random()*6.28,sw:Math.random()*2,b:burstMode,life:1}}
+for(let i=0;i<70;i++)P.push(mk(Math.random()*innerWidth,Math.random()*innerHeight,false));
+function burst(x,y,n){for(let i=0;i<n;i++)P.push(mk(x,y,true))}
+function heartPath(s){cx.beginPath();for(let t=0;t<=6.29;t+=.2){const x=16*Math.sin(t)**3,y=-(13*Math.cos(t)-5*Math.cos(2*t)-2*Math.cos(3*t)-Math.cos(4*t));t?cx.lineTo(x*s/16,y*s/16):cx.moveTo(x*s/16,y*s/16)}cx.closePath()}
+function star(s){cx.beginPath();for(let i=0;i<8;i++){const r=i%2?s*.25:s,a=i*Math.PI/4;cx.lineTo(Math.cos(a)*r,Math.sin(a)*r)}cx.closePath()}
+function loop(t){cx.clearRect(0,0,W,H);for(let i=P.length-1;i>=0;i--){const p=P[i];p.x+=p.vx+Math.sin(t*.001+p.sw)*(p.b?0:.5);p.y+=p.vy;p.r+=p.vr;
+ if(p.b){p.vy+=.18;p.vx*=.985;p.life-=.008;if(p.life<=0||p.y>H+20){P.splice(i,1);continue}}
+ else if(p.y>H+12){p.y=-12;p.x=Math.random()*W}
+ cx.save();cx.translate(p.x,p.y);cx.rotate(p.r);cx.globalAlpha=(.55+.45*Math.sin(t*.008+p.ph))*(p.b?p.life:1);cx.fillStyle=p.c;cx.shadowColor=p.c;cx.shadowBlur=8;
+ if(p.k===0){cx.beginPath();cx.arc(0,0,p.sz/2,0,6.29);cx.fill()}else if(p.k===1){star(p.sz);cx.fill()}else{heartPath(p.sz);cx.fill()}
+ cx.restore()}requestAnimationFrame(loop)}requestAnimationFrame(loop);
+
+/* ---------- tilt ---------- */
+addEventListener('pointermove',e=>{const r=document.documentElement.style;r.setProperty('--ry',((e.clientX/innerWidth-.5)*14).toFixed(1));r.setProperty('--rx',((.5-e.clientY/innerHeight)*10).toFixed(1))});
+
+/* ---------- scenes ---------- */
+const go=id=>{document.body.classList.toggle('cine',id==='s2'||id==='s3'||id==='s5');document.querySelectorAll('.scene').forEach(s=>s.classList.toggle('on',s.id===id))};
+const wait=ms=>new Promise(r=>setTimeout(r,ms));
+
+/* ---------- gift (3D cube built with math) ---------- */
+function cube(w,h,d,cls,y){const c=document.createElement('div');c.className='cube '+cls;c.style.transform=`translateY(${y}px)`;
+ [['f',w,h,`translateZ(${d/2}px)`],['b',w,h,`rotateY(180deg) translateZ(${d/2}px)`],['r',d,h,`rotateY(90deg) translateZ(${w/2}px)`],['l',d,h,`rotateY(-90deg) translateZ(${w/2}px)`],['t',w,d,`rotateX(90deg) translateZ(${h/2}px)`],['u',w,d,`rotateX(-90deg) translateZ(${h/2}px)`]]
+ .forEach(([k,fw,fh,tr])=>{const f=document.createElement('div');f.className='face '+k;f.style.cssText=`width:${fw}px;height:${fh}px;margin:${-fh/2}px 0 0 ${-fw/2}px;transform:${tr}`;c.appendChild(f)});return c}
+const st=$('#stage');
+st.appendChild(cube(180,140,180,'body',0));
+const lw=document.createElement('div');lw.className='lidw';lw.id='lidw';lw.appendChild(cube(198,42,198,'lid',-91));
+const bw=document.createElement('div');bw.style.cssText='position:absolute;transform:translate3d(0,-122px,0);transform-style:preserve-3d';
+bw.innerHTML='<div class="bow" style="left:-62px;top:-26px;transform:rotateZ(-22deg)"></div><div class="bow" style="left:-2px;top:-26px;transform:rotateZ(22deg)"></div><div class="knot"></div>';
+lw.appendChild(bw);st.appendChild(lw);
+const gl=document.createElement('div');gl.id='glow';st.appendChild(gl);
+
+/* ---------- map (real geographic coordinates, projected) ---------- */
+const IRAQ=[[42.4,37.1],[43.8,37.2],[44.8,37.2],[45.9,35.9],[46.1,35.1],[45.5,34.6],[45.6,33.9],[46.2,33.2],[47.3,32.4],[47.8,31.9],[47.7,31.0],[48.0,30.0],[47.7,29.1],[46.6,29.1],[44.7,29.2],[41.0,31.4],[39.2,32.1],[38.8,33.4],[40.0,34.4],[41.0,34.4],[41.3,35.6]];
+const EGYPT=[[25.0,31.6],[27.2,31.3],[29.0,30.9],[30.5,31.5],[31.8,31.5],[32.3,31.2],[34.2,31.3],[34.9,29.5],[34.3,27.8],[33.6,28.5],[32.8,29.8],[32.55,30.0],[32.6,29.8],[33.2,28.0],[34.0,26.5],[35.0,24.5],[35.6,23.1],[36.9,22.0],[25.0,22.0]];
+const pr=([lo,la])=>[40+(lo-24)*.857*28,30+(38-la)*28];
+const dstr=a=>'M'+a.map(pr).map(p=>p.map(n=>n.toFixed(1)).join(',')).join('L')+'Z';
+const BG=pr([44.4,33.3]),CA=pr([31.24,30.04]);
+const ctl=[(BG[0]+CA[0])/2,(BG[1]+CA[1])/2-110];
+const arc=`M${BG}Q${ctl}${' '}${CA}`;
+function ext(d,col,n){let s='';for(let i=n;i>0;i--)s+=`<path d="${d}" transform="translate(0,${i*1.6})" fill="${col}" opacity=".95"/>`;return s}
+const mp=$('#map');
+mp.innerHTML=`<defs><linearGradient id="gd" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff0b0"/><stop offset=".5" stop-color="#ffc93c"/><stop offset="1" stop-color="#e09a12"/></linearGradient><linearGradient id="gl2" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".85"/><stop offset="1" stop-color="#fff" stop-opacity=".25"/></linearGradient></defs>
+<g id="eg" style="opacity:0;transition:opacity 1.4s">${ext(dstr(EGYPT),'#d98bb0',6)}<path d="${dstr(EGYPT)}" fill="url(#gl2)" stroke="#fff" stroke-width="1.4"/><text x="${pr([29.5,26])[0]}" y="${pr([29.5,26])[1]}" text-anchor="middle" font-size="20" fill="#7a2a5a" opacity=".7">مصر</text></g>
+<g id="iq" style="opacity:0;transition:opacity .6s">${ext(dstr(IRAQ),'#a8700a',9)}<path id="iqp" d="${dstr(IRAQ)}" fill="url(#gd)" fill-opacity="0" stroke="#fff6cf" stroke-width="2" style="transition:fill-opacity 1.2s"/><text x="${pr([42.8,35.3])[0]}" y="${pr([42.8,35.3])[1]}" text-anchor="middle" font-size="20" fill="#7a4a00">العراق</text></g>
+<g id="bg" style="opacity:0;transition:opacity .8s"><circle class="rip" cx="${BG[0]}" cy="${BG[1]}" r="5"/><circle class="rip d" cx="${BG[0]}" cy="${BG[1]}" r="5"/><circle cx="${BG[0]}" cy="${BG[1]}" r="6.5" fill="#2f6bff" stroke="#fff" stroke-width="2"/><text x="${BG[0]}" y="${BG[1]+24}" text-anchor="middle" font-size="16" fill="#1b3f9c">بغداد</text></g>
+<g id="ca" style="opacity:0;transition:opacity .8s"><circle class="rip rd" cx="${CA[0]}" cy="${CA[1]}" r="5"/><circle class="rip rd d" cx="${CA[0]}" cy="${CA[1]}" r="5"/><circle cx="${CA[0]}" cy="${CA[1]}" r="6.5" fill="#ff2d2d" stroke="#fff" stroke-width="2"/><text x="${CA[0]}" y="${CA[1]+24}" text-anchor="middle" font-size="16" fill="#9c1b1b">القاهرة</text></g>
+<path id="arc" d="${arc}" fill="none" stroke="#fff" stroke-width="2.5" stroke-dasharray="0 9999" stroke-linecap="round"/>
+<g id="env" style="opacity:0"><rect x="-13" y="-9" width="26" height="18" rx="3" fill="#fff" stroke="#ff5fa3" stroke-width="1.8"/><path d="M-13,-9L0,2L13,-9" fill="none" stroke="#ff5fa3" stroke-width="1.8"/><circle cy="2" r="3" fill="#ff2d2d"/></g>`;
+async function mapSeq(){
+ const ip=$('#iqp'),L=ip.getTotalLength();ip.style.strokeDasharray=L;ip.style.strokeDashoffset=L;
+ $('#cap').textContent='';$('#nextb').classList.remove('show');
+ await wait(900);$('#iq').style.opacity=1;ip.style.transition='stroke-dashoffset 2s ease, fill-opacity 1.2s 1.6s';ip.style.strokeDashoffset=0;ip.style.fillOpacity=1;sfx.whoosh();
+ await wait(2300);$('#bg').style.opacity=1;sfx.thud();$('#cap').textContent='من بغداد، قلب العراق ✦';
+ await wait(1500);$('#eg').style.opacity=1;$('#ca').style.opacity=1;
+ await wait(1400);$('#cap').textContent='رسالةٌ سافرت إليكِ…';sfx.whoosh();
+ const ar=$('#arc'),AL=ar.getTotalLength(),ev=$('#env');ev.style.opacity=1;const T=3200,t0=performance.now();
+ await new Promise(res=>{(function f(n){let p=Math.min(1,(n-t0)/T);const e=p<.5?2*p*p:1-(-2*p+2)**2/2;const pt=ar.getPointAtLength(AL*e),pt2=ar.getPointAtLength(Math.min(AL,AL*e+1));
+  ar.style.strokeDasharray=`2 9 ${0}`;ar.style.strokeDasharray=`${AL*e} ${AL}`;
+  const ang=Math.atan2(pt2.y-pt.y,pt2.x-pt.x)*180/Math.PI*.35,s=1+.7*Math.sin(Math.PI*e);
+  ev.setAttribute('transform',`translate(${pt.x},${pt.y-8*Math.sin(Math.PI*e)}) rotate(${ang}) scale(${s})`);
+  if(Math.random()<.4){const q=mk(pt.x/700*mp.clientWidth+mp.getBoundingClientRect().left,pt.y/540*mp.clientHeight+mp.getBoundingClientRect().top,true);q.vx*=.2;q.vy=Math.random()*1.5;q.life=.5;P.push(q)}
+  p<1?requestAnimationFrame(f):res()})(performance.now())});
+ sfx.land();const r=mp.getBoundingClientRect();burst(r.left+CA[0]/700*r.width,r.top+CA[1]/540*r.height,50);
+ $('#cap').textContent='وصلت إلى القاهرة ♥';
+ await wait(900);$('#nextb').classList.add('show');
+}
+
+/* ---------- cake ---------- */
+function E(t,a,p){const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);(p||$('#cake')).appendChild(e);return e}
+function heartD(cx0,cy0,s){let d='';for(let t=0;t<=6.29;t+=.15){const x=cx0+16*Math.sin(t)**3*s/16,y=cy0-(13*Math.cos(t)-5*Math.cos(2*t)-2*Math.cos(3*t)-Math.cos(4*t))*s/16;d+=(t?'L':'M')+x.toFixed(1)+','+y.toFixed(1)}return d+'Z'}
+(function(){const c=$('#cake');
+ c.innerHTML='<defs><linearGradient id="t1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff9fcb"/><stop offset="1" stop-color="#ff5fa3"/></linearGradient><linearGradient id="t2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffd0e6"/><stop offset="1" stop-color="#ff8fc0"/></linearGradient><linearGradient id="t3" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff0f6"/><stop offset="1" stop-color="#ffb3d1"/></linearGradient><radialGradient id="fg"><stop offset="0" stop-color="#fff"/><stop offset=".4" stop-color="#ffe066"/><stop offset="1" stop-color="#ff7a2d"/></radialGradient></defs>';
+ E('ellipse',{cx:200,cy:376,rx:190,ry:20,fill:'rgba(255,255,255,.7)',stroke:'#fff'});
+ E('ellipse',{cx:200,cy:370,rx:170,ry:14,fill:'#fff',opacity:.8});
+ const tiers=[[50,290,300,74,'t1'],[85,214,230,76,'t2'],[120,148,160,66,'t3']];
+ tiers.forEach(([x,y,w,h,g],i)=>{E('rect',{x,y,width:w,height:h,rx:14,fill:`url(#${g})`});E('rect',{x:x+6,y:y+4,width:10,height:h-8,rx:5,fill:'#fff',opacity:.28});
+  let d=`M${x},${y+6}Q${x},${y} ${x+10},${y}L${x+w-10},${y}Q${x+w},${y} ${x+w},${y+6}`;
+  for(let xx=x+w;xx>=x;xx-=3)d+=`L${xx},${y+10+11*Math.abs(Math.sin((xx-x)/w*Math.PI*(5+i*2)))}`;
+  E('path',{d:d+'Z',fill:'#fff',opacity:.96});
+  for(let k=0;k<=w;k+=14)E('circle',{cx:x+7+k*(w-14)/w,cy:y+h-4,r:4,fill:'#fff',stroke:'#ffd77a'});
+  if(i===0){let s=7;const R=()=>(s=(s*9301+49297)%233280)/233280;for(let k=0;k<26;k++){const a=R()*3.14;E('rect',{x:x+14+R()*(w-28),y:y+30+R()*28,width:9,height:3,rx:1.5,fill:COL[(k%5)+1],transform:`rotate(${a*57})`,'transform-origin':'center'})}}
+  if(i===1)[135,200,265].forEach(hx=>E('path',{d:heartD(hx,y+50,18),fill:'#ff4f9c',stroke:'#fff','stroke-width':1.5}));
+  if(i===2)E('text',{x:200,y:y+48,'text-anchor':'middle','font-size':22,fill:'#ff5fa3',style:'font-family:Doto,monospace'}).textContent='SHOSHO'});
+ [150,175,200,225,250].forEach((x,i)=>{E('rect',{x:x-4,y:104,width:8,height:46,rx:3,fill:['#ffd77a','#9fe3ff','#ffd77a','#9fe3ff','#ffd77a'][i]});E('path',{d:`M${x-4},116l8,-6M${x-4},128l8,-6M${x-4},140l8,-6`,stroke:'#fff','stroke-width':2,opacity:.8});
+  const f=E('path',{d:`M${x},84C${x+9},94 ${x+7},103 ${x},103C${x-7},103 ${x-9},94 ${x},84Z`,fill:'url(#fg)',class:'fl'});f.style.animationDelay=(i*.07)+'s'});
+})();
+$('#cake').onclick=()=>{sfx.chime();const r=$('#cake').getBoundingClientRect();burst(r.left+r.width/2,r.top+r.height*.3,60)};
+const lines=['هنيئاً لكِ بالخير يا كلَّ الخير،','عيدكِ نورٌ لاحَ في الآفاق، وروحكِ تُزهر بالسَّنا الباقي.','في هذا اليوم تُغنّي لكِ الدنيا: كلُّ عامٍ وأنتِ نورُ هذه الدنيا،','كلُّ عامٍ وأنتِ بألفِ خير يا أطيبَ قلبٍ وأجملَ روح.','وفي ليالي نوفمبر أتمنّى لكِ سنينَ مليئةً بالحبّ والسعادة والنجاحات.','وجودكِ في حياةِ كلِّ إنسانٍ هو أجملُ هدية،','الله يحفظكِ يا أطيبَ مَن عرفتُ، شوشو.','تحياتي ♥ أحمد أو نوثنق'];
+let wk=0;const LD=[];
+$('#msg').innerHTML=lines.map((l,i)=>{const last=i===lines.length-1;LD.push(3.5+wk*.11+i*.4+(last?.6:0));return `<p>${l.split(' ').map(w=>`<span class="w" style="--d:${(3.5+(wk++)*.11+i*.4+(last?.6:0)).toFixed(2)}s">${w} </span>`).join('')}</p>`}).join('');
+
+(function(){let g='';for(let lo=24;lo<=50;lo+=2)g+=`<path d="M${pr([lo,38])}L${pr([lo,20])}"/>`;for(let la=20;la<=38;la+=2)g+=`<path d="M${pr([24,la])}L${pr([50,la])}"/>`;mp.insertAdjacentHTML('afterbegin',`<g stroke="#fff" stroke-opacity=".5" stroke-width=".7" stroke-dasharray="2 6" fill="none">${g}</g>`)})();
+addEventListener('pointermove',e=>{const r=document.documentElement.style;r.setProperty('--mx',e.clientX+'px');r.setProperty('--my',e.clientY+'px')});
+/* ---------- flow ---------- */
+$('#go').onclick=async()=>{A();sfx.click();go('s2');
+ await wait(1300);sfx.thud();st.classList.add('shake');st.style.animationPlayState='paused';
+ await wait(1000);st.classList.remove('shake');st.style.animationPlayState='';
+ $('#lidw').classList.add('go');gl.classList.add('go');sfx.chime();burst(innerWidth/2,innerHeight/2,110);
+ await wait(1800);sfx.whoosh();st.classList.add('out');$('#flash').style.opacity=.9;
+ await wait(900);$('#flash').style.opacity=0;go('s3');mapSeq()};
+async function intro(){
+ const el=$('#seq');const show=(h,d)=>{el.className='seq';el.innerHTML=h;el.style.animationDuration=d+'s';void el.offsetWidth;el.classList.add('in')};
+ go('s5');await wait(1500);
+ for(let n=5;n>=1;n--){show(`<div class="cdw"><div class="num gold">${n}</div></div>`,1);A();const t=ac.currentTime;env(n===1?1318:880,t,.18,'sine',.2);env(440,t,.25,'triangle',.12);await wait(1000)}
+ el.className='seq';await wait(300);
+ show('<div class="gr"><div class="ar gold">عيد ميلاد سعيد</div><div class="en gold">Happy Birthday</div></div>',2);sfx.chime();burst(innerWidth/2,innerHeight/2,110);await wait(2000);
+ el.className='seq';await wait(500);
+ show('<div class="gr"><div class="ar gold">شوشو</div><div class="en gold">SHOSHO</div></div>',2);sfx.land();burst(innerWidth/2,innerHeight/2,110);await wait(2000);
+ el.className='seq';await wait(500);
+ go('s4');await wait(900);melody();sfx.chime()}
+$('#nextb').onclick=()=>{sfx.click();intro()};
+</script>
 </body>
 </html>
